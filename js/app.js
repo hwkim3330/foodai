@@ -97,6 +97,11 @@ class FoodAIApp {
                 this.updateStats(e.target.dataset.period);
             });
         });
+
+        // AI 추천 받기
+        document.getElementById('get-recommendation-btn').addEventListener('click', () => {
+            this.getAIRecommendation();
+        });
     }
 
     // 초기 데이터 로드
@@ -244,6 +249,9 @@ class FoodAIApp {
                 <span class="exercise-time">${ex.duration}${ex.unit}</span>
             </div>
         `).join('');
+
+        // AI 영양 조언 생성
+        this.generateAIAdvice(analysis);
     }
 
     // 원본 이미지 표시
@@ -325,6 +333,15 @@ class FoodAIApp {
             ? `목표까지 ${remaining} kcal 남음`
             : `목표를 ${-remaining} kcal 초과했습니다`;
         document.getElementById('remaining-text').textContent = remainingText;
+
+        // AI 추천 카드 표시/숨김
+        const recommendationCard = document.getElementById('recommendation-card');
+        if (todayCalories > 0 && remaining > 0) {
+            recommendationCard.style.display = 'block';
+            document.getElementById('remaining-calories').textContent = remaining;
+        } else {
+            recommendationCard.style.display = 'none';
+        }
 
         // 최근 식사 기록
         this.updateRecentMeals();
@@ -569,6 +586,127 @@ class FoodAIApp {
         setTimeout(() => {
             toast.classList.remove('show');
         }, duration);
+    }
+
+    // AI 영양 조언 생성
+    async generateAIAdvice(analysis) {
+        const adviceContainer = document.getElementById('ai-advice');
+        adviceContainer.innerHTML = '<div class="advice-loading">AI가 맞춤 조언을 생성하는 중...</div>';
+
+        try {
+            const settings = storage.getSettings();
+            const todayCalories = storage.getTodayCalories();
+            const targetCalories = settings.targetCalories || 2000;
+
+            const prompt = `다음 음식에 대해 한국어로 영양 조언을 해주세요:
+
+음식: ${analysis.name}
+칼로리: ${analysis.calories} kcal
+탄수화물: ${analysis.carbs}g
+단백질: ${analysis.protein}g
+지방: ${analysis.fat}g
+나트륨: ${analysis.sodium}mg
+
+사용자 정보:
+- 오늘 이미 섭취한 칼로리: ${todayCalories} kcal
+- 목표 칼로리: ${targetCalories} kcal
+- 목표: ${settings.goal === 'lose' ? '체중 감량' : settings.goal === 'gain' ? '체중 증가' : '체중 유지'}
+
+다음 형식으로 3-4문장으로 간단히 조언해주세요:
+1. 이 음식의 영양적 특징
+2. 현재 섭취 상태에서의 평가
+3. 개선 제안 (있다면)
+
+친근하고 격려하는 톤으로 작성해주세요.`;
+
+            const advice = await geminiAPI.analyzeText(prompt);
+
+            // 조언 표시
+            const paragraphs = advice.split('\n\n').filter(p => p.trim());
+            adviceContainer.innerHTML = paragraphs.map(p => {
+                const cleaned = p.trim().replace(/^[\d\.\-\*]+\s*/, '');
+                return `<p>${cleaned}</p>`;
+            }).join('');
+
+        } catch (error) {
+            console.error('AI advice error:', error);
+            adviceContainer.innerHTML = '<p>AI 조언 생성에 실패했습니다. 다음에 다시 시도해주세요.</p>';
+        }
+    }
+
+    // AI 추천 메뉴 생성
+    async getAIRecommendation() {
+        if (!geminiAPI.isReady()) {
+            this.showToast('설정에서 Gemini API 키를 먼저 입력해주세요.');
+            this.switchTab('settings');
+            return;
+        }
+
+        const recommendationContainer = document.getElementById('ai-recommendation');
+        recommendationContainer.innerHTML = '<div class="recommendation-loading">AI가 맞춤 메뉴를 추천하는 중...</div>';
+
+        try {
+            const settings = storage.getSettings();
+            const todayCalories = storage.getTodayCalories();
+            const targetCalories = settings.targetCalories || 2000;
+            const remaining = targetCalories - todayCalories;
+
+            const todayMeals = storage.getTodayMeals();
+            const mealSummary = todayMeals.map(m => `${m.name} (${m.calories}kcal)`).join(', ');
+
+            const prompt = `다음 상황에서 저녁 식사로 적합한 메뉴 3가지를 추천해주세요:
+
+남은 칼로리: ${remaining} kcal
+오늘 먹은 음식: ${mealSummary || '없음'}
+목표: ${settings.goal === 'lose' ? '체중 감량' : settings.goal === 'gain' ? '체중 증가' : '체중 유지'}
+
+각 추천 메뉴에 대해 다음 형식으로 작성해주세요:
+[음식명] | [예상 칼로리] | [한 줄 설명]
+
+예시:
+연어 샐러드 | 450kcal | 단백질이 풍부하고 오메가3가 많아 건강한 저녁 식사입니다
+닭가슴살 도시락 | 550kcal | 고단백 저칼로리로 다이어트에 완벽합니다
+두부 김치찌개 | 400kcal | 칼로리는 낮지만 포만감이 높은 한식 메뉴입니다
+
+3개만 추천해주세요.`;
+
+            const response = await geminiAPI.analyzeText(prompt);
+
+            // 추천 메뉴 파싱
+            const lines = response.split('\n').filter(line => line.includes('|'));
+
+            if (lines.length > 0) {
+                const recommendations = lines.slice(0, 3).map(line => {
+                    const parts = line.split('|').map(p => p.trim());
+                    return {
+                        name: parts[0] || '추천 메뉴',
+                        calories: parts[1] || '0kcal',
+                        desc: parts[2] || '건강한 식사입니다'
+                    };
+                });
+
+                recommendationContainer.innerHTML = recommendations.map(rec => {
+                    const emoji = nutritionAnalyzer.getFoodEmoji(rec.name);
+                    return `
+                        <div class="recommendation-item">
+                            <div class="recommendation-emoji">${emoji}</div>
+                            <div class="recommendation-details">
+                                <div class="recommendation-name">${rec.name}</div>
+                                <div class="recommendation-desc">${rec.desc}</div>
+                            </div>
+                            <div class="recommendation-calories">${rec.calories}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                recommendationContainer.innerHTML = '<p>추천 메뉴를 생성할 수 없습니다. 다시 시도해주세요.</p>';
+            }
+
+        } catch (error) {
+            console.error('AI recommendation error:', error);
+            recommendationContainer.innerHTML = '<p>추천 메뉴 생성에 실패했습니다. API 키를 확인해주세요.</p>';
+            this.showToast(geminiAPI.translateError(error));
+        }
     }
 }
 

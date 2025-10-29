@@ -895,3 +895,224 @@ html {
     background: var(--primary-light);
     color: var(--primary-color);
 }
+
+/* AI 조언 박스 */
+.ai-advice {
+    padding: 20px;
+    background: linear-gradient(135deg, #E5F1FF 0%, #F0F8FF 100%);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--primary-color);
+    margin-bottom: 24px;
+}
+
+.ai-advice p {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.ai-advice p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-advice strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.advice-loading {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 15px;
+    padding: 20px;
+    animation: pulse 2s infinite;
+}
+
+/* AI 추천 메뉴 */
+.recommendation-box {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.recommendation-header {
+    text-align: center;
+    padding: 16px;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+}
+
+.remaining-kcal {
+    font-size: 17px;
+    color: var(--text-primary);
+}
+
+.remaining-kcal strong {
+    font-size: 24px;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.ai-recommendation {
+    min-height: 120px;
+    padding: 20px;
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--border-color);
+}
+
+.recommendation-loading {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 15px;
+    padding: 40px 20px;
+    animation: pulse 2s infinite;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: white;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+}
+
+.recommendation-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
+}
+
+.recommendation-emoji {
+    font-size: 36px;
+}
+
+.recommendation-details {
+    flex: 1;
+}
+
+.recommendation-name {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.recommendation-desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.recommendation-calories {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* 식사 타임라인 뷰 */
+.timeline-view {
+    position: relative;
+    padding-left: 40px;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 24px;
+    width: 12px;
+    height: 12px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    border: 3px solid var(--bg-color);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 36px;
+    width: 2px;
+    height: calc(100% + 8px);
+    background: var(--border-color);
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+.timeline-time {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.timeline-meal {
+    font-size: 19px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.timeline-calories {
+    font-size: 17px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.timeline-nutrients {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.timeline-nutrient {
+    padding: 6px 12px;
+    background: var(--bg-color);
+    border-radius: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* 다크모드 추가 스타일 */
+@media (prefers-color-scheme: dark) {
+    .ai-advice {
+        background: linear-gradient(135deg, #1C2A3A 0%, #1C3044 100%);
+    }
+
+    .recommendation-item {
+        background: #2C2C2E;
+    }
+
+    .timeline-item {
+        background: #2C2C2E;
+    }
+
+    .timeline-nutrient {
+        background: #3A3A3C;
+    }
+}

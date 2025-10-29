@@ -63,6 +63,22 @@
                 <input type="file" id="file-input" accept="image/*" capture="environment" hidden>
             </div>
 
+            <!-- AI 추천 메뉴 -->
+            <div class="card" id="recommendation-card" style="display:none;">
+                <h2>🤖 오늘의 추천 메뉴</h2>
+                <div class="recommendation-box">
+                    <div class="recommendation-header">
+                        <span class="remaining-kcal">남은 칼로리: <strong id="remaining-calories">500</strong> kcal</span>
+                    </div>
+                    <div id="ai-recommendation" class="ai-recommendation">
+                        <div class="recommendation-loading">AI가 맞춤 메뉴를 추천하는 중...</div>
+                    </div>
+                    <button class="btn btn-primary" id="get-recommendation-btn">
+                        ✨ AI 추천 받기
+                    </button>
+                </div>
+            </div>
+
             <!-- 최근 식사 기록 -->
             <div class="card">
                 <h2>🍚 최근 식사 기록</h2>
@@ -118,6 +134,11 @@
                             <label>나트륨</label>
                             <input type="number" id="sodium-input" placeholder="0"> mg
                         </div>
+                    </div>
+
+                    <h3>💡 AI 영양 코치</h3>
+                    <div id="ai-advice" class="ai-advice">
+                        <div class="advice-loading">AI가 맞춤 조언을 생성하는 중...</div>
                     </div>
 
                     <h3>🏃 운동량 환산</h3>
