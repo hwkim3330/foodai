@@ -11,10 +11,11 @@
 - 갤러리에서 사진 선택도 가능
 - 실시간 AI 분석으로 빠른 결과 제공
 
-### ✨ AI 이미지 보정
-- **나노바나나** 모델로 어두운 사진도 선명하게
+### ✨ 이미지 자동 보정
+- **Canvas API** 기반 실시간 이미지 품질 향상
 - 구내식당의 조명이 어두워도 정확한 분석 가능
 - 원본/보정본 비교 기능
+- 클라이언트 사이드 처리로 빠르고 안전
 
 ### 🤖 정확한 영양 분석
 - **Google Gemini Vision API** 활용
@@ -71,8 +72,7 @@ https://hwkim3330.github.io/foodai/
 
 ### AI/ML
 - **Google Gemini Vision API** - 음식 인식 및 영양 분석
-- **나노바나나** - AI 이미지 보정
-- Hugging Face Inference API
+- **Canvas API** - 클라이언트 사이드 이미지 보정
 
 ### 배포
 - GitHub Pages (정적 웹 호스팅)
@@ -100,10 +100,10 @@ foodai/
 
 | 데이터명 | 출처 | 용도 |
 |---------|------|------|
-| 한국 음식 이미지 | AI Hub | 음식 인식/분류 학습 |
+| 한국 음식 이미지 | AI Hub | 음식 인식/분류 참조 |
 | 식품영양성분 DB | 식품의약품안전처 | 영양 정보 참조 |
-| Gemini Vision API | Google AI | 이미지 분석 |
-| 나노바나나 | Hugging Face | 이미지 보정 |
+| Gemini Vision API | Google AI | 멀티모달 이미지 분석 |
+| Canvas API | W3C 표준 | 이미지 보정 |
 
 ## 💡 핵심 차별점
 

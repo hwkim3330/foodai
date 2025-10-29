@@ -20,8 +20,7 @@
 |------|---------------|------|------|
 | 1 | 한국 음식 이미지 데이터셋 | 음식 인식/분류 | AI Hub (https://aihub.or.kr) |
 | 2 | 식품영양성분 데이터베이스 | 영양 정보 | 식품의약품안전처 식품안전나라 |
-| 3 | Google Gemini Vision API | 이미지 분석 | Google AI |
-| 4 | 나노바나나 (Image Enhancement Model) | 이미지 보정 | Hugging Face / 공개 모델 |
+| 3 | Google Gemini Vision API | 멀티모달 AI 이미지 분석 | Google AI (https://ai.google.dev) |
 
 ---
 
@@ -56,13 +55,18 @@
   - 실시간 분석 가능
   - 사용자가 개인 API 키를 사용하여 비용 관리 가능
 
-**2. 나노바나나 (Image Enhancement Model)**
+**2. Canvas API 기반 이미지 보정**
 - **역할**: 어두운 구내식당 환경에서 촬영한 사진의 밝기, 대비, 선명도 향상
+- **기술**: HTML5 Canvas API를 활용한 클라이언트 사이드 이미지 처리
 - **적용 시나리오**:
-  - 형광등 아래 어두운 음식 사진
-  - 핸드폰 카메라로 급하게 찍은 흐릿한 사진
-  - 역광이나 그림자가 있는 사진
-- **처리 과정**: 원본 이미지 → 나노바나나 보정 → Gemini 분석
+  - 형광등 아래 어두운 음식 사진 → 자동 밝기 조정
+  - 핸드폰 카메라로 급하게 찍은 흐릿한 사진 → 선명도 향상
+  - 역광이나 그림자가 있는 사진 → 대비 개선
+- **처리 과정**: 원본 이미지 → Canvas API 보정 (밝기/대비/선명도) → Gemini 분석
+- **장점**:
+  - 별도 서버 불필요 (100% 클라이언트 사이드)
+  - 실시간 처리 가능
+  - 추가 비용 없음
 
 **3. 식품영양성분 데이터베이스**
 - **역할**: Gemini 분석 결과 검증 및 보완
@@ -81,10 +85,11 @@
    - 갤러리에서 사진 선택
    - 여러 장의 음식 사진 동시 처리 가능
 
-2. **✨ AI 이미지 보정 (나노바나나)**
+2. **✨ 이미지 자동 보정 (Canvas API)**
    - 어두운 환경에서 찍은 사진도 자동으로 밝기 조정
-   - 대비 및 선명도 향상으로 AI 분석 정확도 향상
+   - 대비 및 선명도 향상으로 Gemini 분석 정확도 향상
    - 원본/보정본 비교 기능
+   - 클라이언트 사이드 처리로 빠르고 안전
 
 3. **🤖 AI 음식 분석 (Gemini Vision)**
    - 음식 자동 인식 (한국 음식, 양식, 중식 등)
@@ -125,8 +130,7 @@
 
 **AI/ML:**
 - Google Gemini API (Vision + Text)
-- 나노바나나 이미지 보정 모델
-- Hugging Face Inference API (선택적)
+- Canvas API 기반 이미지 보정
 
 **데이터 처리:**
 - JSON 기반 데이터 구조
@@ -145,9 +149,9 @@
    ↓
 1. 음식 사진 촬영/업로드
    ↓
-2. 이미지 보정 (나노바나나)
+2. 이미지 보정 (Canvas API)
    ├─ 원본 이미지
-   └─ 보정된 이미지 (밝기↑, 선명도↑)
+   └─ 보정된 이미지 (밝기↑, 대비↑, 선명도↑)
    ↓
 3. AI 분석 (Gemini Vision API)
    ├─ 음식 인식
@@ -177,9 +181,10 @@
 
 #### 창의성
 
-**1. 이미지 보정 + 분석의 2단계 AI 처리**
+**1. 이미지 보정 + 분석의 2단계 처리**
 - 기존 서비스들은 원본 사진을 바로 분석하여 낮은 품질의 사진에서 정확도가 떨어짐
-- FoodAI는 나노바나나로 먼저 이미지 품질을 향상시켜 분석 정확도를 크게 개선
+- FoodAI는 Canvas API로 먼저 이미지 품질을 향상(밝기/대비/선명도)시킨 후 Gemini로 분석
+- 구내식당의 어두운 조명 환경에 특화된 전처리 과정
 
 **2. 운동량 환산으로 동기 부여**
 - 단순 칼로리 숫자가 아닌 "조깅 30분 필요"와 같은 구체적 운동 시간 제시
@@ -202,9 +207,9 @@
 **높은 구현 가능성:**
 
 ✅ **기술적 검증:**
-- Gemini API는 공식 문서화가 잘 되어 있으며 JavaScript SDK 제공
-- 나노바나나는 Hugging Face에서 무료로 사용 가능
-- LocalStorage는 모든 모던 브라우저에서 지원
+- Gemini API는 공식 문서화가 잘 되어 있으며 JavaScript에서 직접 호출 가능
+- Canvas API는 모든 모던 브라우저에서 기본 지원
+- LocalStorage는 모든 브라우저에서 지원하는 표준 API
 
 ✅ **개발 난이도:**
 - 프론트엔드 전용으로 백엔드 개발 불필요
@@ -224,7 +229,7 @@
 - Gemini API 연동
 
 **Day 2:**
-- 나노바나나 이미지 보정 통합
+- Canvas API 이미지 보정 구현
 - 영양 분석 결과 표시
 - 운동량 환산 기능
 
@@ -371,9 +376,9 @@
 - Gemini Vision API를 통한 음식 인식
 - 칼로리 및 영양 성분 자동 계산
 
-✅ **AI 이미지 보정**
-- 나노바나나 모델을 통한 이미지 품질 향상
-- 어두운 환경에서도 정확한 분석 가능
+✅ **이미지 자동 보정**
+- Canvas API를 통한 실시간 이미지 품질 향상
+- 어두운 구내식당 환경에서도 정확한 분석 가능
 
 ✅ **칼로리 및 영양 정보 표시**
 - 총 칼로리, 탄수화물, 단백질, 지방, 나트륨 등
@@ -483,14 +488,15 @@
 
 ### 개발 환경
 - 언어: JavaScript (ES6+), HTML5, CSS3
-- AI API: Google Gemini API, Hugging Face API
+- AI API: Google Gemini Vision API
+- 이미지 처리: Canvas API
 - 버전 관리: Git, GitHub
 - 호스팅: GitHub Pages
 - 개발 도구: VS Code, Chrome DevTools
 
 ### 참고 자료
 - Google Gemini API 문서: https://ai.google.dev/
-- Hugging Face 나노바나나: https://huggingface.co/
+- Canvas API 문서: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
 - 식품안전나라 API: https://www.foodsafetykorea.go.kr/
 - AI Hub 한국 음식 이미지: https://aihub.or.kr/
 
