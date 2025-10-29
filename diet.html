@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodAI Diet - 스마트 다이어트 관리</title>
+    <meta name="description" content="체중 감량에 최적화된 AI 칼로리 관리. 목표 달성까지 함께합니다.">
+    <link rel="stylesheet" href="css/diet.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <!-- 로딩 오버레이 -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>AI가 분석 중입니다...</p>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1 class="logo">📉 FoodAI Diet</h1>
+            <p class="subtitle">체중 감량의 여정, 함께합니다</p>
+        </header>
+
+        <!-- 네비게이션 탭 -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="home">홈</button>
+            <button class="tab-btn" data-tab="analyze">분석</button>
+            <button class="tab-btn" data-tab="progress">진행상황</button>
+            <button class="tab-btn" data-tab="planner">식단표</button>
+            <button class="tab-btn" data-tab="recipes">레시피</button>
+            <button class="tab-btn" data-tab="settings">설정</button>
+        </nav>
+
+        <!-- 홈 탭 -->
+        <div id="home-tab" class="tab-content active">
+            <!-- 목표 진행률 -->
+            <div class="card goal-card">
+                <div class="goal-header">
+                    <h2>🎯 목표 진행률</h2>
+                    <button class="btn btn-small" id="edit-goal-btn">수정</button>
+                </div>
+                <div class="weight-display">
+                    <div class="weight-item">
+                        <span class="weight-label">시작</span>
+                        <span class="weight-value" id="start-weight">70.0</span>
+                        <span class="weight-unit">kg</span>
+                    </div>
+                    <div class="weight-arrow">→</div>
+                    <div class="weight-item current">
+                        <span class="weight-label">현재</span>
+                        <span class="weight-value" id="current-weight">67.5</span>
+                        <span class="weight-unit">kg</span>
+                    </div>
+                    <div class="weight-arrow">→</div>
+                    <div class="weight-item goal">
+                        <span class="weight-label">목표</span>
+                        <span class="weight-value" id="goal-weight">60.0</span>
+                        <span class="weight-unit">kg</span>
+                    </div>
+                </div>
+                <div class="goal-progress-bar">
+                    <div class="goal-progress-fill" id="goal-progress-fill" style="width: 25%"></div>
+                </div>
+                <div class="goal-stats">
+                    <div class="goal-stat">
+                        <span class="stat-value" id="weight-lost">-2.5 kg</span>
+                        <span class="stat-label">감량한 체중</span>
+                    </div>
+                    <div class="goal-stat">
+                        <span class="stat-value" id="weight-remaining">-7.5 kg</span>
+                        <span class="stat-label">남은 목표</span>
+                    </div>
+                    <div class="goal-stat">
+                        <span class="stat-value" id="days-active">14일</span>
+                        <span class="stat-label">진행 기간</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 간헐적 단식 -->
+            <div class="card fasting-card">
+                <div class="fasting-header">
+                    <h2>⏱️ 간헐적 단식</h2>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="fasting-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div id="fasting-timer" class="fasting-timer hidden">
+                    <div class="fasting-mode" id="fasting-mode">16:8 모드</div>
+                    <div class="timer-display">
+                        <div class="time-value" id="fasting-hours">0</div>
+                        <div class="time-separator">:</div>
+                        <div class="time-value" id="fasting-minutes">00</div>
+                    </div>
+                    <div class="fasting-state" id="fasting-state">단식 중 (12시간 30분 경과)</div>
+                    <div class="fasting-progress-bar">
+                        <div class="fasting-progress-fill" id="fasting-progress" style="width: 78%"></div>
+                    </div>
+                    <button class="btn btn-primary" id="end-fasting-btn">식사 시작</button>
+                </div>
+                <div id="fasting-setup" class="fasting-setup">
+                    <select id="fasting-mode-select" class="fasting-mode-select">
+                        <option value="16:8">16:8 (16시간 단식)</option>
+                        <option value="18:6">18:6 (18시간 단식)</option>
+                        <option value="20:4">20:4 (20시간 단식)</option>
+                        <option value="14:10">14:10 (14시간 단식)</option>
+                    </select>
+                    <button class="btn btn-primary" id="start-fasting-btn">단식 시작</button>
+                </div>
+            </div>
+
+            <!-- 오늘의 칼로리 -->
+            <div class="card calorie-card">
+                <h2>🔥 오늘의 칼로리</h2>
+                <div class="calorie-circle-container">
+                    <svg class="calorie-circle" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="90" fill="none" stroke="#E5E5EA" stroke-width="12"/>
+                        <circle id="calorie-progress-circle" cx="100" cy="100" r="90" fill="none"
+                                stroke="#FF3B30" stroke-width="12" stroke-linecap="round"
+                                stroke-dasharray="565.48" stroke-dashoffset="282.74"
+                                transform="rotate(-90 100 100)"/>
+                    </svg>
+                    <div class="calorie-center">
+                        <div class="calorie-consumed" id="calorie-consumed">0</div>
+                        <div class="calorie-divider">/</div>
+                        <div class="calorie-target" id="calorie-target">1500</div>
+                        <div class="calorie-label">kcal</div>
+                    </div>
+                </div>
+                <div class="calorie-detail">
+                    <div class="calorie-item remaining">
+                        <span class="calorie-item-label">남은 칼로리</span>
+                        <span class="calorie-item-value" id="calorie-remaining">1500 kcal</span>
+                    </div>
+                    <div class="calorie-item deficit">
+                        <span class="calorie-item-label">칼로리 적자</span>
+                        <span class="calorie-item-value" id="calorie-deficit">-500 kcal/일</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오늘의 식사 기록 -->
+            <div class="card meals-card">
+                <h2>🍽️ 오늘의 식사</h2>
+                <div id="today-meals" class="meals-list">
+                    <p class="empty-message">아직 기록된 식사가 없습니다</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 분석 탭 -->
+        <div id="analyze-tab" class="tab-content">
+            <div class="card analyze-card">
+                <h2>📸 음식 분석</h2>
+                <p class="analyze-description">음식 사진을 찍으면 AI가 칼로리를 분석합니다</p>
+
+                <!-- API 키 경고 -->
+                <div id="api-key-warning" class="warning-box hidden">
+                    ⚠️ API 키를 먼저 설정해주세요. 설정 탭에서 등록할 수 있습니다.
+                </div>
+
+                <!-- 분석 모드 선택 -->
+                <div class="analysis-mode-toggle">
+                    <label class="mode-option">
+                        <input type="radio" name="analysis-mode" value="single" checked>
+                        <span class="mode-label">단일 음식</span>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="analysis-mode" value="multiple">
+                        <span class="mode-label">메뉴판 스캔</span>
+                    </label>
+                </div>
+
+                <!-- 카메라 입력 -->
+                <div class="camera-section">
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+                    <input type="file" id="gallery-input" accept="image/*" style="display:none;">
+
+                    <div class="camera-buttons">
+                        <button class="btn btn-camera" id="camera-btn">
+                            📷 사진 찍기
+                        </button>
+                        <button class="btn btn-gallery" id="gallery-btn">
+                            🖼️ 갤러리
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 이미지 프리뷰 -->
+                <div id="image-preview" class="image-preview hidden">
+                    <img id="preview-image" alt="음식 사진">
+                    <button class="btn btn-primary btn-analyze" id="analyze-btn">분석 시작</button>
+                </div>
+
+                <!-- 분석 결과 -->
+                <div id="result-section" class="result-section hidden">
+                    <h3 class="result-title">📊 분석 결과</h3>
+
+                    <div class="food-info">
+                        <h4 id="food-name" class="food-name">음식명</h4>
+                        <div class="food-calories" id="food-calories">0 kcal</div>
+                    </div>
+
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">탄수화물</span>
+                            <span class="nutrition-value" id="result-carbs">0g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">단백질</span>
+                            <span class="nutrition-value" id="result-protein">0g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">지방</span>
+                            <span class="nutrition-value" id="result-fat">0g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">나트륨</span>
+                            <span class="nutrition-value" id="result-sodium">0mg</span>
+                        </div>
+                    </div>
+
+                    <!-- 다이어트 조언 -->
+                    <div class="diet-advice" id="diet-advice">
+                        <div class="advice-icon">💡</div>
+                        <div class="advice-content">
+                            <strong>다이어트 TIP</strong>
+                            <p id="advice-text">이 음식은 저칼로리 식단에 적합합니다!</p>
+                        </div>
+                    </div>
+
+                    <!-- 운동량 환산 -->
+                    <div class="exercise-conversion" id="exercise-conversion">
+                        <h4 class="exercise-title">🏃 소모하려면?</h4>
+                        <div class="exercise-grid" id="exercise-grid">
+                            <!-- JS로 동적 생성 -->
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn btn-secondary" id="retake-btn">다시 찍기</button>
+                        <button class="btn btn-primary" id="save-meal-btn">기록하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 진행상황 탭 -->
+        <div id="progress-tab" class="tab-content">
+            <div class="card">
+                <h2>📈 체중 변화 그래프</h2>
+                <canvas id="weight-chart"></canvas>
+                <button class="btn btn-primary" id="add-weight-btn">체중 기록</button>
+            </div>
+
+            <div class="card">
+                <h2>📸 전/후 비교</h2>
+                <div class="photo-comparison">
+                    <div class="photo-box">
+                        <div class="photo-label">시작</div>
+                        <div class="photo-placeholder" id="before-photo">
+                            <span class="upload-icon">📷</span>
+                            <p>사진 추가</p>
+                        </div>
+                        <input type="file" id="before-photo-input" accept="image/*" style="display:none;">
+                        <button class="btn btn-small" id="upload-before-btn">업로드</button>
+                    </div>
+                    <div class="photo-box">
+                        <div class="photo-label">현재</div>
+                        <div class="photo-placeholder" id="after-photo">
+                            <span class="upload-icon">📷</span>
+                            <p>사진 추가</p>
+                        </div>
+                        <input type="file" id="after-photo-input" accept="image/*" style="display:none;">
+                        <button class="btn btn-small" id="upload-after-btn">업로드</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 주간 통계</h2>
+                <div class="weekly-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekly-avg-calories">0</div>
+                        <div class="stat-label">평균 칼로리</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="weekly-deficit">0</div>
+                        <div class="stat-label">칼로리 적자</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="streak-days">0일</div>
+                        <div class="stat-label">연속 기록</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 식단표 탭 -->
+        <div id="planner-tab" class="tab-content">
+            <div class="card">
+                <h2>📅 주간 식단 플래너</h2>
+                <div class="week-selector">
+                    <button class="btn btn-icon" id="prev-week-btn">◀</button>
+                    <span class="week-label" id="week-label">이번 주</span>
+                    <button class="btn btn-icon" id="next-week-btn">▶</button>
+                </div>
+
+                <div class="meal-planner" id="meal-planner">
+                    <!-- JS로 동적 생성 -->
+                </div>
+
+                <button class="btn btn-primary" id="generate-plan-btn">AI 식단 생성</button>
+            </div>
+        </div>
+
+        <!-- 레시피 탭 -->
+        <div id="recipes-tab" class="tab-content">
+            <div class="card">
+                <h2>🍳 저칼로리 레시피</h2>
+                <div class="recipe-filters">
+                    <button class="filter-btn active" data-filter="all">전체</button>
+                    <button class="filter-btn" data-filter="breakfast">아침</button>
+                    <button class="filter-btn" data-filter="lunch">점심</button>
+                    <button class="filter-btn" data-filter="dinner">저녁</button>
+                    <button class="filter-btn" data-filter="snack">간식</button>
+                </div>
+
+                <div class="recipe-grid" id="recipe-grid">
+                    <!-- 저칼로리 레시피 샘플 -->
+                    <div class="recipe-card" data-category="breakfast">
+                        <div class="recipe-image">🥗</div>
+                        <h3 class="recipe-title">그릭 요거트 파르페</h3>
+                        <p class="recipe-calories">150 kcal</p>
+                        <p class="recipe-description">고단백 저칼로리 아침 식사</p>
+                    </div>
+                    <div class="recipe-card" data-category="lunch">
+                        <div class="recipe-image">🥙</div>
+                        <h3 class="recipe-title">닭가슴살 샐러드</h3>
+                        <p class="recipe-calories">280 kcal</p>
+                        <p class="recipe-description">영양 균형 잡힌 점심</p>
+                    </div>
+                    <div class="recipe-card" data-category="dinner">
+                        <div class="recipe-image">🐟</div>
+                        <h3 class="recipe-title">구운 연어와 채소</h3>
+                        <p class="recipe-calories">320 kcal</p>
+                        <p class="recipe-description">오메가3 풍부한 저녁</p>
+                    </div>
+                    <div class="recipe-card" data-category="snack">
+                        <div class="recipe-image">🍎</div>
+                        <h3 class="recipe-title">사과와 아몬드</h3>
+                        <p class="recipe-calories">120 kcal</p>
+                        <p class="recipe-description">건강한 간식</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 설정 탭 -->
+        <div id="settings-tab" class="tab-content">
+            <div class="card">
+                <h2>⚙️ 설정</h2>
+
+                <!-- API 키 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">🔑 API 키</h3>
+                    <p class="setting-description">
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>에서 무료 API 키 발급
+                    </p>
+                    <div class="input-group">
+                        <input type="password" id="api-key-input" placeholder="API 키를 입력하세요" class="input-field">
+                        <button class="btn btn-primary" id="save-api-key-btn">저장</button>
+                    </div>
+                    <p id="api-key-status" class="api-key-status"></p>
+                </div>
+
+                <!-- 목표 설정 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">🎯 목표 설정</h3>
+                    <div class="goal-inputs">
+                        <div class="input-row">
+                            <label>시작 체중 (kg)</label>
+                            <input type="number" id="start-weight-input" class="input-field" placeholder="70.0" step="0.1">
+                        </div>
+                        <div class="input-row">
+                            <label>현재 체중 (kg)</label>
+                            <input type="number" id="current-weight-input" class="input-field" placeholder="67.5" step="0.1">
+                        </div>
+                        <div class="input-row">
+                            <label>목표 체중 (kg)</label>
+                            <input type="number" id="goal-weight-input" class="input-field" placeholder="60.0" step="0.1">
+                        </div>
+                        <div class="input-row">
+                            <label>일일 칼로리 목표</label>
+                            <input type="number" id="target-calories-input" class="input-field" placeholder="1500">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="save-goal-btn">저장</button>
+                </div>
+
+                <!-- 데이터 관리 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">💾 데이터 관리</h3>
+                    <div class="data-actions">
+                        <button class="btn btn-secondary" id="export-data-btn">데이터 내보내기</button>
+                        <button class="btn btn-danger" id="reset-data-btn">데이터 초기화</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 체중 입력 모달 -->
+    <div id="weight-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>체중 기록</h3>
+            <div class="input-group">
+                <input type="number" id="weight-input" class="input-field" placeholder="체중 (kg)" step="0.1">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancel-weight-btn">취소</button>
+                <button class="btn btn-primary" id="confirm-weight-btn">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/diet-app.js"></script>
+</body>
+</html>

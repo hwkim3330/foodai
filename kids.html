@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodAI Kids - 슈퍼 히어로 음식 탐험</title>
+    <meta name="description" content="재미있게 배우는 음식과 영양! 음식 친구들과 함께하는 건강 모험">
+    <link rel="stylesheet" href="css/kids.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <!-- 로딩 화면 -->
+    <div id="loading" class="loading hidden">
+        <div class="loading-animation">
+            <div class="food-spinner">🍎</div>
+            <p class="loading-text">음식 친구가 분석 중이에요...</p>
+        </div>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🎮 FoodAI Kids</h1>
+                <div class="level-badge" id="level-display">
+                    <span class="level-icon">⭐</span>
+                    <span class="level-text">레벨 <span id="current-level">1</span></span>
+                </div>
+            </div>
+            <div class="exp-bar-container">
+                <div class="exp-bar">
+                    <div class="exp-fill" id="exp-fill" style="width: 0%"></div>
+                </div>
+                <div class="exp-text" id="exp-text">0 / 100 XP</div>
+            </div>
+        </header>
+
+        <!-- 네비게이션 -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="home">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-label">홈</span>
+            </button>
+            <button class="tab-btn" data-tab="scan">
+                <span class="tab-icon">📸</span>
+                <span class="tab-label">스캔</span>
+            </button>
+            <button class="tab-btn" data-tab="stickers">
+                <span class="tab-icon">✨</span>
+                <span class="tab-label">스티커</span>
+            </button>
+            <button class="tab-btn" data-tab="friends">
+                <span class="tab-icon">🎉</span>
+                <span class="tab-label">친구들</span>
+            </button>
+            <button class="tab-btn" data-tab="parent">
+                <span class="tab-icon">👨‍👩‍👧</span>
+                <span class="tab-label">부모</span>
+            </button>
+        </nav>
+
+        <!-- 홈 탭 -->
+        <div id="home-tab" class="tab-content active">
+            <!-- 오늘의 미션 -->
+            <div class="card mission-card">
+                <h2 class="card-title">🎯 오늘의 미션</h2>
+                <div class="mission-list" id="mission-list">
+                    <div class="mission-item">
+                        <div class="mission-icon">🥦</div>
+                        <div class="mission-info">
+                            <div class="mission-name">채소 먹기</div>
+                            <div class="mission-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%"></div>
+                                </div>
+                                <span class="mission-reward">+20 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mission-item">
+                        <div class="mission-icon">🥛</div>
+                        <div class="mission-info">
+                            <div class="mission-name">우유 마시기</div>
+                            <div class="mission-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                                <span class="mission-reward">+15 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mission-item">
+                        <div class="mission-icon">🍎</div>
+                        <div class="mission-info">
+                            <div class="mission-name">과일 먹기</div>
+                            <div class="mission-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <span class="mission-reward mission-complete">완료!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 내 음식 친구들 -->
+            <div class="card friends-preview">
+                <div class="card-header">
+                    <h2 class="card-title">👥 내 음식 친구들</h2>
+                    <span class="friend-count" id="friend-count">3 / 20</span>
+                </div>
+                <div class="friends-grid" id="home-friends-grid">
+                    <div class="friend-card unlocked">
+                        <div class="friend-avatar">🍎</div>
+                        <div class="friend-name">사과 애니</div>
+                    </div>
+                    <div class="friend-card unlocked">
+                        <div class="friend-avatar">🥦</div>
+                        <div class="friend-name">브로콜리 벤</div>
+                    </div>
+                    <div class="friend-card unlocked">
+                        <div class="friend-avatar">🥛</div>
+                        <div class="friend-name">우유 밀리</div>
+                    </div>
+                    <div class="friend-card locked">
+                        <div class="friend-avatar">❓</div>
+                        <div class="friend-name">???</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오늘의 식사 -->
+            <div class="card meals-card">
+                <h2 class="card-title">🍽️ 오늘 먹은 음식</h2>
+                <div id="today-meals" class="meals-list">
+                    <p class="empty-state">아직 오늘 먹은 음식이 없어요!<br>음식을 스캔해보세요 😊</p>
+                </div>
+                <div class="daily-summary" id="daily-summary" style="display:none;">
+                    <div class="summary-item">
+                        <span class="summary-label">총 칼로리</span>
+                        <span class="summary-value" id="total-calories">0 kcal</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">영양 점수</span>
+                        <span class="summary-value nutrition-score" id="nutrition-score">좋아요!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 스캔 탭 -->
+        <div id="scan-tab" class="tab-content">
+            <div class="card scan-card">
+                <h2 class="card-title">📸 음식 스캔하기</h2>
+                <p class="scan-description">음식 사진을 찍으면 AI가 분석해줘요!</p>
+
+                <!-- API 키 설정 알림 -->
+                <div id="api-key-warning" class="warning-box">
+                    ⚠️ 먼저 부모님께 API 키를 설정해달라고 요청하세요!
+                </div>
+
+                <!-- 카메라 입력 -->
+                <div class="camera-section">
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+                    <input type="file" id="gallery-input" accept="image/*" style="display:none;">
+
+                    <div class="camera-buttons">
+                        <button class="btn btn-camera" id="camera-btn">
+                            <span class="btn-icon">📷</span>
+                            <span class="btn-text">사진 찍기</span>
+                        </button>
+                        <button class="btn btn-gallery" id="gallery-btn">
+                            <span class="btn-icon">🖼️</span>
+                            <span class="btn-text">앨범에서 선택</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 이미지 프리뷰 -->
+                <div id="image-preview" class="image-preview hidden">
+                    <img id="preview-image" alt="음식 사진">
+                    <button class="btn btn-primary btn-analyze" id="analyze-btn">분석 시작!</button>
+                </div>
+
+                <!-- 분석 결과 -->
+                <div id="result-section" class="result-section hidden">
+                    <div class="result-header">
+                        <h3 class="result-title">🎉 분석 완료!</h3>
+                        <div class="result-reward">+<span id="earned-xp">10</span> XP</div>
+                    </div>
+
+                    <div class="food-info">
+                        <div class="food-character" id="food-character">🍱</div>
+                        <h3 id="food-name" class="food-name">음식 이름</h3>
+                        <p id="food-comment" class="food-comment">맛있는 음식이에요!</p>
+                    </div>
+
+                    <div class="nutrition-simple">
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">⚡</div>
+                            <div class="nutrition-info">
+                                <div class="nutrition-label">에너지</div>
+                                <div class="nutrition-value" id="result-calories">0 kcal</div>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">💪</div>
+                            <div class="nutrition-info">
+                                <div class="nutrition-label">단백질</div>
+                                <div class="nutrition-value" id="result-protein">0g</div>
+                            </div>
+                        </div>
+                        <div class="nutrition-item">
+                            <div class="nutrition-icon">🍚</div>
+                            <div class="nutrition-info">
+                                <div class="nutrition-label">탄수화물</div>
+                                <div class="nutrition-value" id="result-carbs">0g</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fun-fact" id="fun-fact">
+                        💡 <strong>재미있는 사실:</strong> 이 음식을 먹으면 놀이터에서 30분 동안 놀 수 있는 에너지가 생겨요!
+                    </div>
+
+                    <button class="btn btn-primary btn-save" id="save-meal-btn">저장하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 스티커 탭 -->
+        <div id="stickers-tab" class="tab-content">
+            <div class="card stickers-card">
+                <h2 class="card-title">✨ 내 스티커 컬렉션</h2>
+                <div class="stickers-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="total-stickers">5</span>
+                        <span class="stat-label">모은 스티커</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">30</span>
+                        <span class="stat-label">전체 스티커</span>
+                    </div>
+                </div>
+
+                <div class="stickers-grid" id="stickers-grid">
+                    <!-- 스티커 카테고리 -->
+                    <div class="sticker-category">
+                        <h3 class="category-title">🍎 과일 친구들</h3>
+                        <div class="sticker-items">
+                            <div class="sticker-item unlocked">
+                                <div class="sticker-icon">🍎</div>
+                                <div class="sticker-name">사과</div>
+                            </div>
+                            <div class="sticker-item unlocked">
+                                <div class="sticker-icon">🍌</div>
+                                <div class="sticker-name">바나나</div>
+                            </div>
+                            <div class="sticker-item locked">
+                                <div class="sticker-icon">🔒</div>
+                                <div class="sticker-name">???</div>
+                            </div>
+                            <div class="sticker-item locked">
+                                <div class="sticker-icon">🔒</div>
+                                <div class="sticker-name">???</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sticker-category">
+                        <h3 class="category-title">🥦 채소 친구들</h3>
+                        <div class="sticker-items">
+                            <div class="sticker-item unlocked">
+                                <div class="sticker-icon">🥦</div>
+                                <div class="sticker-name">브로콜리</div>
+                            </div>
+                            <div class="sticker-item unlocked">
+                                <div class="sticker-icon">🥕</div>
+                                <div class="sticker-name">당근</div>
+                            </div>
+                            <div class="sticker-item locked">
+                                <div class="sticker-icon">🔒</div>
+                                <div class="sticker-name">???</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sticker-category">
+                        <h3 class="category-title">🥛 건강 친구들</h3>
+                        <div class="sticker-items">
+                            <div class="sticker-item unlocked">
+                                <div class="sticker-icon">🥛</div>
+                                <div class="sticker-name">우유</div>
+                            </div>
+                            <div class="sticker-item locked">
+                                <div class="sticker-icon">🔒</div>
+                                <div class="sticker-name">???</div>
+                            </div>
+                            <div class="sticker-item locked">
+                                <div class="sticker-icon">🔒</div>
+                                <div class="sticker-name">???</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 친구들 탭 -->
+        <div id="friends-tab" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">🎉 음식 친구들 도감</h2>
+                <p class="friends-description">음식을 먹고 친구들을 모아보세요!</p>
+
+                <div class="friends-collection" id="friends-collection">
+                    <!-- 친구 카드들이 JS로 동적 생성됨 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 부모 탭 -->
+        <div id="parent-tab" class="tab-content">
+            <div class="card parent-card">
+                <h2 class="card-title">👨‍👩‍👧 부모 모드</h2>
+                <p class="parent-description">자녀의 식습관을 확인하고 설정을 관리하세요</p>
+
+                <!-- API 키 설정 -->
+                <div class="settings-section">
+                    <h3 class="section-title">🔑 API 키 설정</h3>
+                    <p class="section-description">
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>에서 무료 API 키를 발급받으세요
+                    </p>
+                    <div class="input-group">
+                        <input type="password" id="api-key-input" placeholder="API 키를 입력하세요" class="input-field">
+                        <button class="btn btn-primary" id="save-api-key-btn">저장</button>
+                    </div>
+                    <p id="api-key-status" class="api-key-status"></p>
+                </div>
+
+                <!-- 목표 설정 -->
+                <div class="settings-section">
+                    <h3 class="section-title">🎯 일일 칼로리 목표</h3>
+                    <p class="section-description">자녀의 나이와 활동량에 맞게 설정하세요</p>
+                    <div class="input-group">
+                        <input type="number" id="target-calories-input" placeholder="예: 1500" class="input-field">
+                        <button class="btn btn-primary" id="save-target-btn">저장</button>
+                    </div>
+                </div>
+
+                <!-- 주간 리포트 -->
+                <div class="settings-section">
+                    <h3 class="section-title">📊 주간 리포트</h3>
+                    <div class="weekly-report" id="weekly-report">
+                        <div class="report-item">
+                            <span class="report-label">평균 칼로리</span>
+                            <span class="report-value" id="avg-calories">0 kcal</span>
+                        </div>
+                        <div class="report-item">
+                            <span class="report-label">식사 기록</span>
+                            <span class="report-value" id="meal-count">0회</span>
+                        </div>
+                        <div class="report-item">
+                            <span class="report-label">채소 섭취</span>
+                            <span class="report-value" id="veggie-count">0회</span>
+                        </div>
+                        <div class="report-item">
+                            <span class="report-label">과일 섭취</span>
+                            <span class="report-value" id="fruit-count">0회</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 영양 그래프 -->
+                <div class="settings-section">
+                    <h3 class="section-title">📈 영양 분석</h3>
+                    <canvas id="parent-nutrition-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 레벨업 애니메이션 -->
+    <div id="levelup-animation" class="levelup-animation hidden">
+        <div class="levelup-content">
+            <div class="levelup-icon">🎉</div>
+            <h2 class="levelup-title">레벨 업!</h2>
+            <p class="levelup-text">레벨 <span id="levelup-number">2</span> 달성!</p>
+            <div class="levelup-rewards">
+                <div class="reward-item">🎁 새로운 스티커 획득!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/kids-app.js"></script>
+</body>
+</html>

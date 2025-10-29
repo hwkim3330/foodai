@@ -261,6 +261,213 @@ export class NutritionAnalyzer {
         return '야식';
     }
 
+    // 오늘 부족한 영양소 분석
+    analyzeMissingNutrients(todayMeals, targetCalories = 2000) {
+        // 오늘 먹은 영양소 합계
+        const total = {
+            calories: 0,
+            carbs: 0,
+            protein: 0,
+            fat: 0,
+            sodium: 0
+        };
+
+        todayMeals.forEach(meal => {
+            total.calories += meal.calories || 0;
+            total.carbs += meal.carbs || 0;
+            total.protein += meal.protein || 0;
+            total.fat += meal.fat || 0;
+            total.sodium += meal.sodium || 0;
+        });
+
+        // 권장 섭취량 (targetCalories 기준으로 비율 조정)
+        const ratio = targetCalories / 2000;
+        const recommended = {
+            calories: targetCalories,
+            carbs: 300 * ratio,      // g
+            protein: 50 * ratio,     // g
+            fat: 65 * ratio,         // g
+            sodium: 2300            // mg (고정)
+        };
+
+        // 부족/과다 계산
+        const missing = {
+            calories: Math.max(0, recommended.calories - total.calories),
+            carbs: Math.max(0, recommended.carbs - total.carbs),
+            protein: Math.max(0, recommended.protein - total.protein),
+            fat: Math.max(0, recommended.fat - total.fat),
+            sodium: total.sodium - recommended.sodium  // 나트륨은 과다 체크
+        };
+
+        const deficiencies = [];
+        const excesses = [];
+
+        // 심각한 부족 (권장량의 50% 미만)
+        if (total.protein < recommended.protein * 0.5) {
+            deficiencies.push({
+                nutrient: '단백질',
+                current: Math.round(total.protein),
+                recommended: Math.round(recommended.protein),
+                missing: Math.round(missing.protein),
+                severity: 'high',
+                suggestion: '닭가슴살, 계란, 두부, 생선'
+            });
+        } else if (total.protein < recommended.protein * 0.8) {
+            deficiencies.push({
+                nutrient: '단백질',
+                current: Math.round(total.protein),
+                recommended: Math.round(recommended.protein),
+                missing: Math.round(missing.protein),
+                severity: 'medium',
+                suggestion: '계란, 우유, 요거트'
+            });
+        }
+
+        if (total.carbs < recommended.carbs * 0.5) {
+            deficiencies.push({
+                nutrient: '탄수화물',
+                current: Math.round(total.carbs),
+                recommended: Math.round(recommended.carbs),
+                missing: Math.round(missing.carbs),
+                severity: 'high',
+                suggestion: '현미밥, 고구마, 통밀빵, 오트밀'
+            });
+        }
+
+        // 과다 섭취
+        if (total.sodium > recommended.sodium * 1.2) {
+            excesses.push({
+                nutrient: '나트륨',
+                current: Math.round(total.sodium),
+                recommended: Math.round(recommended.sodium),
+                excess: Math.round(total.sodium - recommended.sodium),
+                severity: total.sodium > recommended.sodium * 1.5 ? 'high' : 'medium',
+                suggestion: '물을 충분히 마시고, 다음 식사는 저염식으로'
+            });
+        }
+
+        if (total.calories > recommended.calories * 1.2) {
+            excesses.push({
+                nutrient: '칼로리',
+                current: Math.round(total.calories),
+                recommended: Math.round(recommended.calories),
+                excess: Math.round(total.calories - recommended.calories),
+                severity: 'medium',
+                suggestion: '가벼운 운동이나 내일 칼로리 조절 권장'
+            });
+        }
+
+        return {
+            total,
+            recommended,
+            missing,
+            deficiencies,
+            excesses,
+            score: this.calculateNutrientBalanceScore(total, recommended)
+        };
+    }
+
+    // 영양소 균형 점수 (0-100)
+    calculateNutrientBalanceScore(total, recommended) {
+        let score = 100;
+
+        // 단백질 부족 감점
+        const proteinRatio = total.protein / recommended.protein;
+        if (proteinRatio < 0.5) score -= 30;
+        else if (proteinRatio < 0.8) score -= 15;
+
+        // 나트륨 과다 감점
+        const sodiumRatio = total.sodium / recommended.sodium;
+        if (sodiumRatio > 1.5) score -= 25;
+        else if (sodiumRatio > 1.2) score -= 10;
+
+        // 칼로리 편차 감점
+        const calorieDeviation = Math.abs(total.calories - recommended.calories) / recommended.calories;
+        if (calorieDeviation > 0.3) score -= 20;
+        else if (calorieDeviation > 0.15) score -= 10;
+
+        // 지방 과다 감점
+        const fatCal = total.fat * 9;
+        const totalCal = total.calories || 1;
+        const fatRatio = fatCal / totalCal;
+        if (fatRatio > 0.4) score -= 15;
+
+        return Math.max(0, Math.min(100, Math.round(score)));
+    }
+
+    // 시간대별 최적 음식 추천
+    getTimeBasedFoodSuggestions() {
+        const hour = new Date().getHours();
+
+        if (hour >= 6 && hour < 10) {
+            // 아침
+            return {
+                mealType: '아침',
+                suggestions: [
+                    { food: '오트밀 + 과일', calories: 300, reason: '에너지 충전과 섬유질' },
+                    { food: '계란 2개 + 통밀빵', calories: 350, reason: '단백질과 복합 탄수화물' },
+                    { food: '그릭 요거트 + 견과류', calories: 280, reason: '단백질과 건강한 지방' }
+                ],
+                tip: '아침은 하루 에너지의 25-30%를 섭취하세요'
+            };
+        } else if (hour >= 10 && hour < 12) {
+            // 오전 간식
+            return {
+                mealType: '오전 간식',
+                suggestions: [
+                    { food: '바나나', calories: 105, reason: '빠른 에너지 보충' },
+                    { food: '아몬드 한 줌', calories: 160, reason: '포만감과 집중력' },
+                    { food: '사과', calories: 95, reason: '섬유질과 비타민' }
+                ],
+                tip: '가볍게 100-150 kcal 정도가 적당해요'
+            };
+        } else if (hour >= 12 && hour < 15) {
+            // 점심
+            return {
+                mealType: '점심',
+                suggestions: [
+                    { food: '연어 샐러드', calories: 450, reason: '단백질과 오메가3' },
+                    { food: '닭가슴살 덮밥', calories: 550, reason: '균형 잡힌 영양소' },
+                    { food: '퀴노아 볼', calories: 480, reason: '완전 단백질과 채소' }
+                ],
+                tip: '점심은 하루 에너지의 35-40%를 섭취하세요'
+            };
+        } else if (hour >= 15 && hour < 18) {
+            // 오후 간식
+            return {
+                mealType: '오후 간식',
+                suggestions: [
+                    { food: '단백질 쉐이크', calories: 150, reason: '근육 회복과 포만감' },
+                    { food: '당근 + 후무스', calories: 120, reason: '저칼로리 고영양' },
+                    { food: '삶은 계란', calories: 70, reason: '단백질 보충' }
+                ],
+                tip: '저녁까지 버틸 수 있는 가벼운 간식을 선택하세요'
+            };
+        } else if (hour >= 18 && hour < 21) {
+            // 저녁
+            return {
+                mealType: '저녁',
+                suggestions: [
+                    { food: '두부 김치찌개', calories: 350, reason: '저칼로리 고단백' },
+                    { food: '닭가슴살 구이 + 채소', calories: 400, reason: '가볍고 소화 잘됨' },
+                    { food: '새우 샐러드', calories: 320, reason: '저칼로리 고단백' }
+                ],
+                tip: '저녁은 가볍게, 취침 3시간 전까지 식사하세요'
+            };
+        } else {
+            // 야식
+            return {
+                mealType: '야식',
+                suggestions: [
+                    { food: '따뜻한 우유', calories: 100, reason: '숙면 도움' },
+                    { food: '방울토마토', calories: 30, reason: '저칼로리 간식' },
+                    { food: '플레인 요거트', calories: 80, reason: '소화 잘됨' }
+                ],
+                tip: '야식은 피하는 것이 좋지만, 꼭 필요하다면 200 kcal 이하로'
+            };
+        }
+    }
+
     // 음식 이모지 추천
     getFoodEmoji(foodName) {
         const lower = foodName.toLowerCase();

@@ -235,6 +235,140 @@ export class GeminiAPI {
         return nutrition;
     }
 
+    // 다중 음식 분석 (메뉴판, 여러 음식)
+    async analyzeMultipleFoods(imageData) {
+        if (!this.apiKey) {
+            throw new Error('API 키가 설정되지 않았습니다. 설정 페이지에서 API 키를 입력해주세요.');
+        }
+
+        try {
+            let base64Image;
+            let mimeType = 'image/jpeg';
+
+            if (imageData instanceof File || imageData instanceof Blob) {
+                base64Image = await this.imageToBase64(imageData);
+                mimeType = imageData.type || 'image/jpeg';
+            } else if (typeof imageData === 'string') {
+                if (imageData.startsWith('data:')) {
+                    const parts = imageData.split(',');
+                    base64Image = parts[1];
+                    const mimeMatch = parts[0].match(/:(.*?);/);
+                    if (mimeMatch) mimeType = mimeMatch[1];
+                } else {
+                    base64Image = imageData;
+                }
+            }
+
+            const prompt = `이 이미지에 있는 모든 음식을 분석하여 각각의 영양 정보를 제공해주세요.
+
+이미지에 보이는 모든 음식을 찾아서, 각 음식에 대해 다음 정보를 JSON 배열 형식으로 제공해주세요:
+
+[
+  {
+    "name": "음식 이름",
+    "calories": 칼로리(숫자),
+    "carbs": 탄수화물(숫자),
+    "protein": 단백질(숫자),
+    "fat": 지방(숫자),
+    "sodium": 나트륨(숫자)
+  },
+  ...
+]
+
+요구사항:
+- 메뉴판이라면 각 메뉴 항목을 개별적으로 분석
+- 여러 접시/그릇이 있다면 각각을 분석
+- 1인분 기준으로 계산
+- 구체적인 숫자로 제공
+- 최소 1개, 최대 10개까지 음식 분석`;
+
+            const requestBody = {
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        {
+                            inline_data: {
+                                mime_type: mimeType,
+                                data: base64Image
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    temperature: 0.4,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 2048,
+                }
+            };
+
+            const url = `${this.baseUrl}?key=${this.apiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API Error:', errorData);
+
+                if (response.status === 403) {
+                    throw new Error('API 키가 유효하지 않습니다. 설정에서 API 키를 확인해주세요.');
+                } else if (response.status === 429) {
+                    throw new Error('API 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
+                } else {
+                    throw new Error(`API 오류: ${errorData.error?.message || response.statusText}`);
+                }
+            }
+
+            const data = await response.json();
+
+            // 응답 파싱
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) {
+                throw new Error('AI 응답을 받을 수 없습니다.');
+            }
+
+            return this.parseMultipleFoodsResponse(text);
+
+        } catch (error) {
+            console.error('Gemini API Error:', error);
+            throw error;
+        }
+    }
+
+    // 다중 음식 응답 파싱
+    parseMultipleFoodsResponse(text) {
+        try {
+            // JSON 배열 추출
+            const jsonMatch = text.match(/\[[\s\S]*?\]/);
+            if (jsonMatch) {
+                const parsed = JSON.parse(jsonMatch[0]);
+
+                // 각 항목 검증
+                return parsed.map(item => ({
+                    name: item.name || '알 수 없는 음식',
+                    calories: parseInt(item.calories) || 0,
+                    carbs: parseFloat(item.carbs) || 0,
+                    protein: parseFloat(item.protein) || 0,
+                    fat: parseFloat(item.fat) || 0,
+                    sodium: parseFloat(item.sodium) || 0
+                }));
+            }
+
+            // JSON 배열이 없으면 단일 음식으로 처리
+            const singleFood = this.parseGeminiResponse(text);
+            return [singleFood];
+
+        } catch (error) {
+            console.error('Parse error:', error);
+            throw new Error('AI 응답을 파싱할 수 없습니다.');
+        }
+    }
+
     // 간단한 텍스트 분석 (이미지 없이)
     async analyzeText(text) {
         if (!this.apiKey) {

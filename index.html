@@ -35,6 +35,73 @@
 
         <!-- 홈 탭 -->
         <div id="home-tab" class="tab-content active">
+            <!-- 스트릭 & 영양 점수 -->
+            <div class="card achievements-card">
+                <div class="achievement-header">
+                    <div class="streak-box">
+                        <div class="streak-icon">🔥</div>
+                        <div class="streak-info">
+                            <div class="streak-number" id="streak-days">0</div>
+                            <div class="streak-label">일 연속</div>
+                        </div>
+                    </div>
+                    <div class="nutrition-score-box">
+                        <div class="score-circle" id="nutrition-score-circle">
+                            <div class="score-value" id="nutrition-score">0</div>
+                        </div>
+                        <div class="score-label">주간 영양 점수</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 간헐적 단식 타이머 -->
+            <div class="card fasting-card" id="fasting-card" style="display:none;">
+                <div class="fasting-header">
+                    <h2>⏱️ 간헐적 단식</h2>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="fasting-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div id="fasting-timer" class="fasting-timer hidden">
+                    <div class="fasting-status">
+                        <div class="fasting-mode" id="fasting-mode">16:8 모드</div>
+                        <div class="fasting-state" id="fasting-state">단식 중</div>
+                    </div>
+                    <div class="timer-display">
+                        <div class="time-value" id="fasting-hours">0</div>
+                        <div class="time-label">시간</div>
+                        <div class="time-separator">:</div>
+                        <div class="time-value" id="fasting-minutes">00</div>
+                        <div class="time-label">분</div>
+                    </div>
+                    <div class="fasting-progress-bar">
+                        <div class="fasting-progress-fill" id="fasting-progress"></div>
+                    </div>
+                    <div class="fasting-actions">
+                        <button class="btn btn-secondary" id="end-fasting-btn">중단</button>
+                        <button class="btn btn-primary" id="toggle-fasting-btn">식사 시작</button>
+                    </div>
+                </div>
+                <div id="fasting-setup" class="fasting-setup">
+                    <select id="fasting-mode-select" class="fasting-mode-select">
+                        <option value="16:8">16:8 (16시간 단식)</option>
+                        <option value="18:6">18:6 (18시간 단식)</option>
+                        <option value="20:4">20:4 (20시간 단식)</option>
+                        <option value="14:10">14:10 (14시간 단식)</option>
+                    </select>
+                    <button class="btn btn-primary" id="start-fasting-btn">단식 시작</button>
+                </div>
+            </div>
+
+            <!-- 배지 컬렉션 -->
+            <div class="card badges-card">
+                <h2>🏆 배지 컬렉션</h2>
+                <div id="badges-container" class="badges-grid">
+                    <p class="empty-message">아직 획득한 배지가 없습니다. 첫 배지를 획득해보세요!</p>
+                </div>
+            </div>
+
             <!-- 오늘의 칼로리 -->
             <div class="card">
                 <h2>📊 오늘의 칼로리</h2>
@@ -52,6 +119,16 @@
             <!-- 사진 입력 버튼 -->
             <div class="card">
                 <h2>📸 음식 분석하기</h2>
+                <div class="analysis-mode-toggle">
+                    <label class="mode-option">
+                        <input type="radio" name="analysis-mode" value="single" checked>
+                        <span>단일 음식</span>
+                    </label>
+                    <label class="mode-option">
+                        <input type="radio" name="analysis-mode" value="multiple">
+                        <span>메뉴판 스캔</span>
+                    </label>
+                </div>
                 <div class="input-buttons">
                     <button class="btn btn-primary" id="camera-btn">
                         📷 카메라로 촬영
@@ -90,7 +167,26 @@
 
         <!-- 분석 탭 -->
         <div id="analyze-tab" class="tab-content">
-            <div class="card">
+            <!-- 메뉴 비교 모드 -->
+            <div id="menu-comparison" class="card hidden">
+                <h2>📋 메뉴 비교</h2>
+                <div class="image-preview-container">
+                    <div class="image-preview">
+                        <img id="menu-image" class="food-image" alt="메뉴판 이미지">
+                    </div>
+                </div>
+
+                <div id="ai-recommendation-summary" class="ai-recommendation-box"></div>
+
+                <div id="menu-items-grid" class="menu-items-grid"></div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="retry-menu-btn">🔄 다시 분석</button>
+                </div>
+            </div>
+
+            <!-- 단일 음식 분석 모드 -->
+            <div id="single-analysis" class="card">
                 <h2>🍜 분석 결과</h2>
 
                 <!-- 이미지 미리보기 -->
@@ -164,6 +260,7 @@
                 <div id="no-analysis" class="empty-message">
                     분석할 음식 사진을 업로드해주세요.
                 </div>
+            </div>
             </div>
         </div>
 

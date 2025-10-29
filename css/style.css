@@ -1131,6 +1131,505 @@ html {
     color: var(--text-secondary);
 }
 
+/* 스트릭 & 영양 점수 */
+.achievements-card .achievement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.streak-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, #FF9500 0%, #FF6B00 100%);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.streak-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.streak-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.streak-number {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.streak-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.nutrition-score-box {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.score-circle {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.score-value {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.score-label {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* 배지 그리드 */
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.badge-item {
+    padding: 16px;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.badge-item:hover {
+    transform: translateY(-4px);
+}
+
+.badge-icon {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.badge-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.badge-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.badge-date {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* 간헐적 단식 */
+.fasting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 51px;
+    height: 31px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E5E5EA;
+    transition: 0.3s;
+    border-radius: 31px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 27px;
+    width: 27px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--success-color);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.fasting-timer {
+    text-align: center;
+}
+
+.fasting-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.fasting-mode {
+    font-size: 15px;
+    color: var(--text-secondary);
+}
+
+.fasting-state {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.timer-display {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 8px;
+    margin: 24px 0;
+}
+
+.time-value {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.time-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.time-separator {
+    font-size: 40px;
+    color: var(--text-secondary);
+    margin: 0 8px;
+}
+
+.fasting-progress-bar {
+    height: 8px;
+    background: var(--bg-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 24px 0;
+}
+
+.fasting-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.fasting-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.fasting-actions button {
+    flex: 1;
+}
+
+.fasting-setup {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fasting-mode-select {
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* 분석 모드 토글 */
+.analysis-mode-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 6px;
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+}
+
+.mode-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+}
+
+.mode-option input[type="radio"] {
+    display: none;
+}
+
+.mode-option span {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.mode-option input[type="radio"]:checked + span {
+    color: var(--primary-color);
+}
+
+.mode-option:has(input[type="radio"]:checked) {
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 메뉴 비교 그리드 */
+.menu-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.menu-item-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.menu-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.menu-item-card.recommended {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.05) 0%, rgba(52, 199, 89, 0.1) 100%);
+}
+
+.menu-item-card.warning {
+    border-color: var(--warning-color);
+}
+
+.menu-item-card.danger {
+    border-color: var(--danger-color);
+}
+
+.menu-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+.menu-badge.best {
+    background: var(--success-color);
+}
+
+.menu-badge.good {
+    background: var(--primary-color);
+}
+
+.menu-badge.caution {
+    background: var(--warning-color);
+}
+
+.menu-item-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.menu-item-calories {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+}
+
+.menu-item-nutrients {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.nutrient-chip {
+    padding: 8px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.nutrient-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: block;
+}
+
+.nutrient-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+}
+
+.menu-item-pros {
+    margin-bottom: 12px;
+}
+
+.menu-item-cons {
+    margin-bottom: 16px;
+}
+
+.pros-title,
+.cons-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pros-title {
+    color: var(--success-color);
+}
+
+.cons-title {
+    color: var(--danger-color);
+}
+
+.pros-list,
+.cons-list {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.pros-list li {
+    margin-bottom: 4px;
+}
+
+.cons-list li {
+    margin-bottom: 4px;
+}
+
+.select-menu-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--primary-color);
+    color: white;
+}
+
+.select-menu-btn:hover {
+    background: var(--primary-hover);
+    transform: scale(1.02);
+}
+
+.ai-recommendation-box {
+    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+    color: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+}
+
+.ai-recommendation-box h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-recommendation-box p {
+    font-size: 15px;
+    line-height: 1.6;
+    opacity: 0.95;
+}
+
+/* 반응형 */
+@media (max-width: 600px) {
+    .achievements-card .achievement-header {
+        flex-direction: column;
+    }
+
+    .streak-box,
+    .nutrition-score-box {
+        width: 100%;
+    }
+
+    .badges-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .menu-items-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* 다크모드 추가 스타일 */
 @media (prefers-color-scheme: dark) {
     .ai-advice {
@@ -1147,5 +1646,19 @@ html {
 
     .timeline-nutrient {
         background: #3A3A3C;
+    }
+
+    .badge-item {
+        background: rgba(0, 122, 255, 0.15);
+    }
+
+    .toggle-slider {
+        background-color: #3A3A3C;
+    }
+
+    .fasting-mode-select {
+        background: #1C1C1E;
+        border-color: #3A3A3C;
+        color: white;
     }
 }

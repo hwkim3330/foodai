@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodAI Fitness - 운동하는 사람을 위한 영양 관리</title>
+    <meta name="description" content="단백질 중심 영양 관리. 벌크업과 컷팅, 모든 목표 달성을 위한 최적의 식단">
+    <link rel="stylesheet" href="css/fitness.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <!-- 로딩 오버레이 -->
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>AI가 분석 중입니다...</p>
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1 class="logo">💪 FoodAI Fitness</h1>
+            <p class="subtitle">운동하는 사람을 위한 스마트 영양 관리</p>
+            <div class="mode-switcher">
+                <button class="mode-btn active" data-mode="bulk">
+                    <span class="mode-icon">📈</span>
+                    <span class="mode-text">벌크업</span>
+                </button>
+                <button class="mode-btn" data-mode="cut">
+                    <span class="mode-icon">📉</span>
+                    <span class="mode-text">컷팅</span>
+                </button>
+                <button class="mode-btn" data-mode="maintain">
+                    <span class="mode-icon">⚖️</span>
+                    <span class="mode-text">유지</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 네비게이션 탭 -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="home">홈</button>
+            <button class="tab-btn" data-tab="analyze">분석</button>
+            <button class="tab-btn" data-tab="protein">단백질</button>
+            <button class="tab-btn" data-tab="timing">타이밍</button>
+            <button class="tab-btn" data-tab="supplements">보충제</button>
+            <button class="tab-btn" data-tab="settings">설정</button>
+        </nav>
+
+        <!-- 홈 탭 -->
+        <div id="home-tab" class="tab-content active">
+            <!-- 오늘의 영양 현황 -->
+            <div class="card nutrition-status-card">
+                <h2>📊 오늘의 영양 현황</h2>
+                <div class="macro-circles">
+                    <div class="macro-circle-item">
+                        <svg class="macro-circle" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#E5E5EA" stroke-width="8"/>
+                            <circle id="protein-circle" cx="60" cy="60" r="52" fill="none"
+                                    stroke="#FF6B9D" stroke-width="8" stroke-linecap="round"
+                                    stroke-dasharray="326.73" stroke-dashoffset="163.37"
+                                    transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div class="macro-center">
+                            <div class="macro-value" id="protein-consumed">0</div>
+                            <div class="macro-target" id="protein-target">/140g</div>
+                        </div>
+                        <div class="macro-label">단백질</div>
+                    </div>
+
+                    <div class="macro-circle-item">
+                        <svg class="macro-circle" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#E5E5EA" stroke-width="8"/>
+                            <circle id="carbs-circle" cx="60" cy="60" r="52" fill="none"
+                                    stroke="#5AC8FA" stroke-width="8" stroke-linecap="round"
+                                    stroke-dasharray="326.73" stroke-dashoffset="163.37"
+                                    transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div class="macro-center">
+                            <div class="macro-value" id="carbs-consumed">0</div>
+                            <div class="macro-target" id="carbs-target">/250g</div>
+                        </div>
+                        <div class="macro-label">탄수화물</div>
+                    </div>
+
+                    <div class="macro-circle-item">
+                        <svg class="macro-circle" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#E5E5EA" stroke-width="8"/>
+                            <circle id="fat-circle" cx="60" cy="60" r="52" fill="none"
+                                    stroke="#FFCC00" stroke-width="8" stroke-linecap="round"
+                                    stroke-dasharray="326.73" stroke-dashoffset="163.37"
+                                    transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div class="macro-center">
+                            <div class="macro-value" id="fat-consumed">0</div>
+                            <div class="macro-target" id="fat-target">/60g</div>
+                        </div>
+                        <div class="macro-label">지방</div>
+                    </div>
+                </div>
+
+                <div class="total-calories">
+                    <span class="calories-label">총 칼로리</span>
+                    <span class="calories-value" id="total-calories">0 / 2800 kcal</span>
+                </div>
+            </div>
+
+            <!-- 근육량 & 체중 트래킹 -->
+            <div class="card body-stats-card">
+                <h2>📈 신체 지표</h2>
+                <div class="body-stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">⚖️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">체중</div>
+                            <div class="stat-value" id="current-weight">75.0 kg</div>
+                            <div class="stat-change positive">+0.5 kg</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-info">
+                            <div class="stat-label">근육량</div>
+                            <div class="stat-value" id="muscle-mass">35.0 kg</div>
+                            <div class="stat-change positive">+1.2 kg</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-info">
+                            <div class="stat-label">체지방률</div>
+                            <div class="stat-value" id="body-fat">15.0 %</div>
+                            <div class="stat-change negative">-2.0 %</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="update-stats-btn">측정 기록</button>
+            </div>
+
+            <!-- 운동 전/후 식사 추천 -->
+            <div class="card workout-meals-card">
+                <h2>🏋️ 운동 전/후 식사</h2>
+                <div class="workout-meals">
+                    <div class="meal-recommendation pre-workout">
+                        <div class="meal-header">
+                            <span class="meal-icon">⏰</span>
+                            <span class="meal-title">운동 전 (1-2시간 전)</span>
+                        </div>
+                        <div class="meal-suggestion">
+                            <p class="suggestion-text">탄수화물 중심 식사</p>
+                            <div class="suggestion-examples">
+                                <span class="example-item">바나나 + 오트밀</span>
+                                <span class="example-item">고구마 + 닭가슴살</span>
+                            </div>
+                            <div class="suggestion-macros">
+                                탄 40g | 단 20g | 지 5g
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meal-recommendation post-workout">
+                        <div class="meal-header">
+                            <span class="meal-icon">✅</span>
+                            <span class="meal-title">운동 후 (30분 이내)</span>
+                        </div>
+                        <div class="meal-suggestion">
+                            <p class="suggestion-text">단백질 + 빠른 탄수화물</p>
+                            <div class="suggestion-examples">
+                                <span class="example-item">프로틴 쉐이크 + 바나나</span>
+                                <span class="example-item">닭가슴살 + 흰쌀밥</span>
+                            </div>
+                            <div class="suggestion-macros">
+                                탄 50g | 단 30g | 지 5g
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오늘의 식사 기록 -->
+            <div class="card meals-card">
+                <h2>🍽️ 오늘의 식사</h2>
+                <div id="today-meals" class="meals-list">
+                    <p class="empty-message">아직 기록된 식사가 없습니다</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 분석 탭 -->
+        <div id="analyze-tab" class="tab-content">
+            <div class="card analyze-card">
+                <h2>📸 음식 분석</h2>
+                <p class="analyze-description">음식 사진을 찍으면 AI가 영양소를 분석합니다</p>
+
+                <!-- API 키 경고 -->
+                <div id="api-key-warning" class="warning-box hidden">
+                    ⚠️ API 키를 먼저 설정해주세요. 설정 탭에서 등록할 수 있습니다.
+                </div>
+
+                <!-- 카메라 입력 -->
+                <div class="camera-section">
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+                    <input type="file" id="gallery-input" accept="image/*" style="display:none;">
+
+                    <div class="camera-buttons">
+                        <button class="btn btn-camera" id="camera-btn">
+                            📷 사진 찍기
+                        </button>
+                        <button class="btn btn-gallery" id="gallery-btn">
+                            🖼️ 갤러리
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 이미지 프리뷰 -->
+                <div id="image-preview" class="image-preview hidden">
+                    <img id="preview-image" alt="음식 사진">
+                    <button class="btn btn-primary btn-analyze" id="analyze-btn">분석 시작</button>
+                </div>
+
+                <!-- 분석 결과 -->
+                <div id="result-section" class="result-section hidden">
+                    <h3 class="result-title">📊 분석 결과</h3>
+
+                    <div class="food-info">
+                        <h4 id="food-name" class="food-name">음식명</h4>
+                        <div class="food-macros">
+                            <div class="macro-badge protein">
+                                <span class="badge-label">단백질</span>
+                                <span class="badge-value" id="result-protein">0g</span>
+                            </div>
+                            <div class="macro-badge carbs">
+                                <span class="badge-label">탄수화물</span>
+                                <span class="badge-value" id="result-carbs">0g</span>
+                            </div>
+                            <div class="macro-badge fat">
+                                <span class="badge-label">지방</span>
+                                <span class="badge-value" id="result-fat">0g</span>
+                            </div>
+                        </div>
+                        <div class="food-calories" id="food-calories">0 kcal</div>
+                    </div>
+
+                    <!-- 피트니스 평가 -->
+                    <div class="fitness-evaluation" id="fitness-evaluation">
+                        <div class="evaluation-header">
+                            <span class="evaluation-icon">💪</span>
+                            <span class="evaluation-title">피트니스 평가</span>
+                        </div>
+                        <div class="evaluation-content" id="evaluation-text">
+                            고단백 저지방 식품으로 근육 성장에 이상적입니다!
+                        </div>
+                        <div class="evaluation-rating">
+                            <span class="rating-label">단백질 밀도</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" id="protein-density-bar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn btn-secondary" id="retake-btn">다시 찍기</button>
+                        <button class="btn btn-primary" id="save-meal-btn">기록하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 단백질 탭 -->
+        <div id="protein-tab" class="tab-content">
+            <div class="card">
+                <h2>🥩 단백질 트래커</h2>
+                <div class="protein-goal">
+                    <div class="goal-formula">
+                        <span class="formula-text">체중 × 2g = </span>
+                        <span class="formula-result" id="protein-goal">140g</span>
+                    </div>
+                    <p class="goal-description">근육 성장을 위한 일일 권장 단백질</p>
+                </div>
+
+                <div class="protein-progress">
+                    <div class="progress-header">
+                        <span>현재 섭취</span>
+                        <span id="protein-progress-text">0 / 140g</span>
+                    </div>
+                    <div class="progress-bar-large">
+                        <div class="progress-fill-large" id="protein-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <h3 class="section-subtitle">시간대별 단백질 섭취</h3>
+                <canvas id="protein-timeline-chart"></canvas>
+
+                <h3 class="section-subtitle">고단백 음식 추천</h3>
+                <div class="food-suggestions">
+                    <div class="food-suggestion-item">
+                        <div class="food-icon">🍗</div>
+                        <div class="food-details">
+                            <div class="food-name-small">닭가슴살 (100g)</div>
+                            <div class="food-protein">단백질 31g</div>
+                        </div>
+                    </div>
+                    <div class="food-suggestion-item">
+                        <div class="food-icon">🥚</div>
+                        <div class="food-details">
+                            <div class="food-name-small">계란 (2개)</div>
+                            <div class="food-protein">단백질 14g</div>
+                        </div>
+                    </div>
+                    <div class="food-suggestion-item">
+                        <div class="food-icon">🐟</div>
+                        <div class="food-details">
+                            <div class="food-name-small">연어 (100g)</div>
+                            <div class="food-protein">단백질 25g</div>
+                        </div>
+                    </div>
+                    <div class="food-suggestion-item">
+                        <div class="food-icon">🥛</div>
+                        <div class="food-details">
+                            <div class="food-name-small">그릭 요거트 (200g)</div>
+                            <div class="food-protein">단백질 20g</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 타이밍 탭 -->
+        <div id="timing-tab" class="tab-content">
+            <div class="card">
+                <h2>⏰ 식사 타이밍 최적화</h2>
+
+                <!-- 탄수화물 사이클링 -->
+                <div class="carb-cycling">
+                    <h3 class="section-subtitle">탄수화물 사이클링</h3>
+                    <div class="cycle-days">
+                        <div class="cycle-day high">
+                            <div class="day-label">운동 O</div>
+                            <div class="day-carbs">고탄수: 300g</div>
+                            <div class="day-description">다리, 등 운동일</div>
+                        </div>
+                        <div class="cycle-day medium">
+                            <div class="day-label">운동 △</div>
+                            <div class="day-carbs">중탄수: 200g</div>
+                            <div class="day-description">팔, 어깨 운동일</div>
+                        </div>
+                        <div class="cycle-day low">
+                            <div class="day-label">휴식</div>
+                            <div class="day-carbs">저탄수: 100g</div>
+                            <div class="day-description">휴식일</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주간 식사 계획 -->
+                <h3 class="section-subtitle">주간 식사 계획</h3>
+                <div class="weekly-meal-plan" id="weekly-meal-plan">
+                    <!-- JS로 동적 생성 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 보충제 탭 -->
+        <div id="supplements-tab" class="tab-content">
+            <div class="card">
+                <h2>💊 보충제 추천</h2>
+                <p class="supplements-description">운동 목표에 맞는 보충제를 추천합니다</p>
+
+                <div class="supplements-grid">
+                    <div class="supplement-card essential">
+                        <div class="supplement-badge">필수</div>
+                        <div class="supplement-icon">🥤</div>
+                        <h3 class="supplement-name">프로틴 파우더</h3>
+                        <p class="supplement-timing">운동 후 30분 이내</p>
+                        <p class="supplement-dose">1회 25-30g</p>
+                        <p class="supplement-benefit">근육 회복 및 성장</p>
+                    </div>
+
+                    <div class="supplement-card recommended">
+                        <div class="supplement-badge">추천</div>
+                        <div class="supplement-icon">⚡</div>
+                        <h3 class="supplement-name">크레아틴</h3>
+                        <p class="supplement-timing">운동 전/후</p>
+                        <p class="supplement-dose">1회 5g</p>
+                        <p class="supplement-benefit">근력 증가, 에너지</p>
+                    </div>
+
+                    <div class="supplement-card recommended">
+                        <div class="supplement-badge">추천</div>
+                        <div class="supplement-icon">🔋</div>
+                        <h3 class="supplement-name">BCAA</h3>
+                        <p class="supplement-timing">운동 중</p>
+                        <p class="supplement-dose">1회 5-10g</p>
+                        <p class="supplement-benefit">근손실 방지</p>
+                    </div>
+
+                    <div class="supplement-card optional">
+                        <div class="supplement-badge">선택</div>
+                        <div class="supplement-icon">🐟</div>
+                        <h3 class="supplement-name">오메가-3</h3>
+                        <p class="supplement-timing">식사와 함께</p>
+                        <p class="supplement-dose">1일 2-3g</p>
+                        <p class="supplement-benefit">관절 건강, 염증 감소</p>
+                    </div>
+
+                    <div class="supplement-card optional">
+                        <div class="supplement-badge">선택</div>
+                        <div class="supplement-icon">💊</div>
+                        <h3 class="supplement-name">멀티비타민</h3>
+                        <p class="supplement-timing">아침 식사 후</p>
+                        <p class="supplement-dose">1일 1회</p>
+                        <p class="supplement-benefit">전반적인 영양 보충</p>
+                    </div>
+
+                    <div class="supplement-card optional">
+                        <div class="supplement-badge">선택</div>
+                        <div class="supplement-icon">☕</div>
+                        <h3 class="supplement-name">프리워크아웃</h3>
+                        <p class="supplement-timing">운동 30분 전</p>
+                        <p class="supplement-dose">제품 지침 참고</p>
+                        <p class="supplement-benefit">집중력, 에너지 증가</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 설정 탭 -->
+        <div id="settings-tab" class="tab-content">
+            <div class="card">
+                <h2>⚙️ 설정</h2>
+
+                <!-- API 키 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">🔑 API 키</h3>
+                    <p class="setting-description">
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>에서 무료 API 키 발급
+                    </p>
+                    <div class="input-group">
+                        <input type="password" id="api-key-input" placeholder="API 키를 입력하세요" class="input-field">
+                        <button class="btn btn-primary" id="save-api-key-btn">저장</button>
+                    </div>
+                    <p id="api-key-status" class="api-key-status"></p>
+                </div>
+
+                <!-- 신체 정보 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">📏 신체 정보</h3>
+                    <div class="input-rows">
+                        <div class="input-row">
+                            <label>체중 (kg)</label>
+                            <input type="number" id="weight-input" class="input-field" placeholder="75.0" step="0.1">
+                        </div>
+                        <div class="input-row">
+                            <label>근육량 (kg)</label>
+                            <input type="number" id="muscle-input" class="input-field" placeholder="35.0" step="0.1">
+                        </div>
+                        <div class="input-row">
+                            <label>체지방률 (%)</label>
+                            <input type="number" id="bodyfat-input" class="input-field" placeholder="15.0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="save-body-stats-btn">저장</button>
+                </div>
+
+                <!-- 목표 설정 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">🎯 목표 설정</h3>
+                    <div class="input-rows">
+                        <div class="input-row">
+                            <label>일일 칼로리 목표</label>
+                            <input type="number" id="target-calories-input" class="input-field" placeholder="2800">
+                        </div>
+                        <div class="input-row">
+                            <label>일일 단백질 목표 (g)</label>
+                            <input type="number" id="target-protein-input" class="input-field" placeholder="140">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="save-goals-btn">저장</button>
+                </div>
+
+                <!-- 데이터 관리 -->
+                <div class="setting-section">
+                    <h3 class="setting-title">💾 데이터 관리</h3>
+                    <div class="data-actions">
+                        <button class="btn btn-secondary" id="export-data-btn">데이터 내보내기</button>
+                        <button class="btn btn-danger" id="reset-data-btn">데이터 초기화</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/fitness-app.js"></script>
+</body>
+</html>

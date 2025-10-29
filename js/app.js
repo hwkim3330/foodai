@@ -95,6 +95,28 @@ class FoodAIApp {
         document.getElementById('get-recommendation-btn').addEventListener('click', () => {
             this.getAIRecommendation();
         });
+
+        // 간헐적 단식
+        document.getElementById('fasting-toggle').addEventListener('change', (e) => {
+            this.toggleFastingMode(e.target.checked);
+        });
+
+        document.getElementById('start-fasting-btn').addEventListener('click', () => {
+            this.startFasting();
+        });
+
+        document.getElementById('toggle-fasting-btn').addEventListener('click', () => {
+            this.toggleFastingState();
+        });
+
+        document.getElementById('end-fasting-btn').addEventListener('click', () => {
+            this.endFasting();
+        });
+
+        // 메뉴 비교 재분석
+        document.getElementById('retry-menu-btn').addEventListener('click', () => {
+            this.analyzeMultipleFoods();
+        });
     }
 
     // 초기 데이터 로드
@@ -157,6 +179,9 @@ class FoodAIApp {
             return;
         }
 
+        // 분석 모드 확인
+        const mode = document.querySelector('input[name="analysis-mode"]:checked').value;
+
         try {
             this.showLoading('이미지 분석 준비 중...');
 
@@ -165,13 +190,23 @@ class FoodAIApp {
 
             // 이미지 표시
             const imageUrl = URL.createObjectURL(file);
-            document.getElementById('food-image').src = imageUrl;
 
             // 분석 탭으로 전환
             this.switchTab('analyze');
 
-            // AI 분석 시작
-            await this.analyzeImage();
+            if (mode === 'multiple') {
+                // 메뉴판 다중 분석
+                document.getElementById('menu-image').src = imageUrl;
+                document.getElementById('menu-comparison').classList.remove('hidden');
+                document.getElementById('single-analysis').classList.add('hidden');
+                await this.analyzeMultipleFoods();
+            } else {
+                // 단일 음식 분석
+                document.getElementById('food-image').src = imageUrl;
+                document.getElementById('single-analysis').classList.remove('hidden');
+                document.getElementById('menu-comparison').classList.add('hidden');
+                await this.analyzeImage();
+            }
 
         } catch (error) {
             console.error('Image processing error:', error);
@@ -415,8 +450,15 @@ class FoodAIApp {
             mealType: nutritionAnalyzer.getMealType()
         };
 
-        // 저장
-        storage.saveMeal(meal);
+        // 업적과 함께 저장
+        const { mealData, newBadges } = storage.saveMealWithAchievements(meal);
+
+        // 새로운 배지 알림
+        if (newBadges && newBadges.length > 0) {
+            newBadges.forEach(badge => {
+                this.showToast(`🎉 새 배지 획득: ${badge.icon} ${badge.name}`, 4000);
+            });
+        }
 
         // 홈 화면 업데이트
         this.updateHomeScreen();
@@ -433,6 +475,36 @@ class FoodAIApp {
 
     // 홈 화면 업데이트
     updateHomeScreen() {
+        // 스트릭 표시
+        const streak = storage.getCurrentStreak();
+        document.getElementById('streak-days').textContent = streak;
+
+        // 주간 영양 점수 표시
+        const weeklyScore = storage.calculateWeeklyNutritionScore();
+        document.getElementById('nutrition-score').textContent = weeklyScore.score;
+
+        // 점수에 따라 색상 변경
+        const scoreCircle = document.getElementById('nutrition-score-circle');
+        if (weeklyScore.score >= 80) {
+            scoreCircle.style.borderColor = 'rgba(52, 199, 89, 0.8)';
+        } else if (weeklyScore.score >= 60) {
+            scoreCircle.style.borderColor = 'rgba(255, 149, 0, 0.8)';
+        } else {
+            scoreCircle.style.borderColor = 'rgba(255, 59, 48, 0.8)';
+        }
+
+        // 배지 표시
+        this.updateBadges();
+
+        // 간헐적 단식 카드 표시
+        const fastingSettings = storage.getFastingSettings();
+        document.getElementById('fasting-card').style.display = 'block';
+        document.getElementById('fasting-toggle').checked = fastingSettings.enabled;
+
+        if (fastingSettings.enabled) {
+            this.updateFastingTimer();
+        }
+
         // 오늘의 칼로리
         const todayCalories = storage.getTodayCalories();
         const targetCalories = storage.getSettings().targetCalories || 2000;
@@ -824,6 +896,326 @@ class FoodAIApp {
             recommendationContainer.innerHTML = '<p>추천 메뉴 생성에 실패했습니다. API 키를 확인해주세요.</p>';
             this.showToast(geminiAPI.translateError(error));
         }
+    }
+
+    // 배지 표시 업데이트
+    updateBadges() {
+        const badges = storage.getBadges();
+        const container = document.getElementById('badges-container');
+
+        if (badges.length === 0) {
+            container.innerHTML = '<p class="empty-message">아직 획득한 배지가 없습니다. 첫 배지를 획득해보세요!</p>';
+            return;
+        }
+
+        container.innerHTML = badges.map(badge => {
+            const earnedDate = new Date(badge.earnedAt).toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            return `
+                <div class="badge-item">
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                    <div class="badge-desc">${badge.desc}</div>
+                    <div class="badge-date">${earnedDate}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 간헐적 단식 모드 토글
+    toggleFastingMode(enabled) {
+        storage.saveFastingSettings({ enabled });
+
+        const timerEl = document.getElementById('fasting-timer');
+        const setupEl = document.getElementById('fasting-setup');
+
+        if (enabled) {
+            timerEl.classList.remove('hidden');
+            setupEl.style.display = 'none';
+            this.startFastingTimerUpdate();
+        } else {
+            timerEl.classList.add('hidden');
+            setupEl.style.display = 'flex';
+            this.stopFastingTimerUpdate();
+        }
+    }
+
+    // 단식 시작
+    startFasting() {
+        const mode = document.getElementById('fasting-mode-select').value;
+        storage.saveFastingSettings({ mode });
+        storage.startFasting();
+
+        document.getElementById('fasting-timer').classList.remove('hidden');
+        document.getElementById('fasting-setup').style.display = 'none';
+
+        this.updateFastingTimer();
+        this.startFastingTimerUpdate();
+        this.showToast('간헐적 단식을 시작했습니다!');
+    }
+
+    // 단식/식사 상태 전환
+    toggleFastingState() {
+        const status = storage.getFastingStatus();
+
+        if (status.status === 'fasting') {
+            storage.startEating();
+            this.showToast('식사 시간이 시작되었습니다!');
+        } else {
+            storage.startFasting();
+            this.showToast('단식이 시작되었습니다!');
+        }
+
+        this.updateFastingTimer();
+    }
+
+    // 단식 종료
+    endFasting() {
+        if (!confirm('간헐적 단식을 중단하시겠습니까?')) {
+            return;
+        }
+
+        storage.endFasting();
+        this.updateFastingTimer();
+        this.showToast('간헐적 단식을 중단했습니다.');
+    }
+
+    // 간헐적 단식 타이머 업데이트
+    updateFastingTimer() {
+        const status = storage.getFastingStatus();
+
+        if (!status.enabled || status.status === 'idle') {
+            document.getElementById('fasting-timer').classList.add('hidden');
+            document.getElementById('fasting-setup').style.display = 'flex';
+            return;
+        }
+
+        document.getElementById('fasting-timer').classList.remove('hidden');
+        document.getElementById('fasting-setup').style.display = 'none';
+
+        // 모드 표시
+        document.getElementById('fasting-mode').textContent = `${status.mode} 모드`;
+
+        // 상태 표시
+        const stateText = status.status === 'fasting' ? '단식 중' : '식사 시간';
+        document.getElementById('fasting-state').textContent = stateText;
+
+        // 시간 표시
+        document.getElementById('fasting-hours').textContent = status.elapsedHours || 0;
+        document.getElementById('fasting-minutes').textContent = String(status.elapsedMinutes || 0).padStart(2, '0');
+
+        // 진행률 표시
+        document.getElementById('fasting-progress').style.width = `${status.progress || 0}%`;
+
+        // 버튼 텍스트
+        const toggleBtn = document.getElementById('toggle-fasting-btn');
+        toggleBtn.textContent = status.status === 'fasting' ? '식사 시작' : '단식 시작';
+
+        // 완료 체크
+        if (status.status === 'fasting' && status.isCompleted) {
+            this.showToast('🎉 단식 목표를 달성했습니다!', 5000);
+        }
+    }
+
+    // 단식 타이머 자동 업데이트 시작
+    startFastingTimerUpdate() {
+        this.stopFastingTimerUpdate();
+        this.fastingInterval = setInterval(() => {
+            this.updateFastingTimer();
+        }, 60000); // 1분마다 업데이트
+    }
+
+    // 단식 타이머 자동 업데이트 중지
+    stopFastingTimerUpdate() {
+        if (this.fastingInterval) {
+            clearInterval(this.fastingInterval);
+            this.fastingInterval = null;
+        }
+    }
+
+    // 여러 음식 동시 분석 (메뉴판 스캔)
+    async analyzeMultipleFoods() {
+        try {
+            this.showLoading('AI가 메뉴판을 분석 중입니다...');
+
+            // Gemini API로 다중 음식 분석
+            const foods = await geminiAPI.analyzeMultipleFoods(this.currentImage);
+
+            if (!foods || foods.length === 0) {
+                throw new Error('음식을 인식할 수 없습니다.');
+            }
+
+            // 사용자 정보로 각 메뉴 평가
+            const settings = storage.getSettings();
+            const targetCalories = settings.targetCalories || 2000;
+            const todayCalories = storage.getTodayCalories();
+            const remaining = targetCalories - todayCalories;
+
+            // 각 메뉴에 점수 부여
+            const evaluatedFoods = foods.map(food => {
+                const pros = [];
+                const cons = [];
+                let score = 50;
+                let badge = null;
+
+                // 칼로리 평가
+                if (food.calories <= remaining * 0.4) {
+                    pros.push('남은 칼로리에 적합');
+                    score += 20;
+                } else if (food.calories > remaining) {
+                    cons.push('남은 칼로리 초과');
+                    score -= 20;
+                }
+
+                // 단백질 평가
+                if (food.protein >= 20) {
+                    pros.push('단백질 풍부');
+                    score += 15;
+                } else if (food.protein < 10) {
+                    cons.push('단백질 부족');
+                    score -= 10;
+                }
+
+                // 지방 평가
+                const fatRatio = (food.fat * 9) / food.calories;
+                if (fatRatio < 0.3) {
+                    pros.push('저지방 식단');
+                    score += 10;
+                } else if (fatRatio > 0.4) {
+                    cons.push('지방 함량 높음');
+                    score -= 10;
+                }
+
+                // 나트륨 평가
+                if (food.sodium < 500) {
+                    pros.push('저염식');
+                    score += 10;
+                } else if (food.sodium > 1000) {
+                    cons.push('나트륨 과다');
+                    score -= 15;
+                }
+
+                // 배지 부여
+                if (score >= 80) {
+                    badge = 'best';
+                } else if (score >= 60) {
+                    badge = 'good';
+                } else if (score < 40) {
+                    badge = 'caution';
+                }
+
+                return {
+                    ...food,
+                    pros,
+                    cons,
+                    score,
+                    badge
+                };
+            });
+
+            // 점수순 정렬
+            evaluatedFoods.sort((a, b) => b.score - a.score);
+
+            // UI에 표시
+            this.displayMenuComparison(evaluatedFoods, remaining);
+
+            this.hideLoading();
+            this.showToast(`${foods.length}개 메뉴를 분석했습니다!`);
+
+        } catch (error) {
+            console.error('Multiple foods analysis error:', error);
+            this.hideLoading();
+            this.showToast(geminiAPI.translateError(error));
+        }
+    }
+
+    // 메뉴 비교 UI 표시
+    displayMenuComparison(foods, remainingCalories) {
+        // AI 추천 요약
+        const best = foods[0];
+        const summaryHTML = `
+            <h3>🤖 AI 추천</h3>
+            <p><strong>${best.name}</strong>이(가) 가장 적합합니다!</p>
+            <p>${best.calories}kcal로 남은 칼로리 ${remainingCalories}kcal에 딱 맞고, ${best.pros.join(', ')} 특징이 있습니다.</p>
+        `;
+        document.getElementById('ai-recommendation-summary').innerHTML = summaryHTML;
+
+        // 메뉴 카드 생성
+        const gridHTML = foods.map((food, index) => {
+            const badgeText = food.badge === 'best' ? 'BEST' : food.badge === 'good' ? 'GOOD' : food.badge === 'caution' ? '주의' : '';
+            const badgeClass = food.badge || '';
+            const cardClass = index === 0 ? 'recommended' : food.badge === 'caution' ? 'danger' : '';
+
+            return `
+                <div class="menu-item-card ${cardClass}">
+                    ${badgeText ? `<div class="menu-badge ${badgeClass}">${badgeText}</div>` : ''}
+
+                    <div class="menu-item-name">${food.name}</div>
+                    <div class="menu-item-calories">${food.calories} <span style="font-size: 16px; font-weight: 500;">kcal</span></div>
+
+                    <div class="menu-item-nutrients">
+                        <div class="nutrient-chip">
+                            <span class="nutrient-label">탄수화물</span>
+                            <span class="nutrient-value">${food.carbs}g</span>
+                        </div>
+                        <div class="nutrient-chip">
+                            <span class="nutrient-label">단백질</span>
+                            <span class="nutrient-value">${food.protein}g</span>
+                        </div>
+                        <div class="nutrient-chip">
+                            <span class="nutrient-label">지방</span>
+                            <span class="nutrient-value">${food.fat}g</span>
+                        </div>
+                    </div>
+
+                    ${food.pros.length > 0 ? `
+                        <div class="menu-item-pros">
+                            <div class="pros-title">✅ 장점</div>
+                            <ul class="pros-list">
+                                ${food.pros.map(pro => `<li>• ${pro}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    ${food.cons.length > 0 ? `
+                        <div class="menu-item-cons">
+                            <div class="cons-title">⚠️ 단점</div>
+                            <ul class="cons-list">
+                                ${food.cons.map(con => `<li>• ${con}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    <button class="select-menu-btn" onclick="foodAI.selectMenu(${index})">
+                        이 메뉴 선택
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('menu-items-grid').innerHTML = gridHTML;
+
+        // 현재 메뉴 목록 저장
+        this.currentMenus = foods;
+    }
+
+    // 메뉴 선택
+    selectMenu(index) {
+        const selectedFood = this.currentMenus[index];
+
+        this.showToast(`${selectedFood.name}를 선택했습니다!`);
+
+        // 단일 분석 모드로 전환하여 상세 정보 표시
+        this.currentAnalysis = selectedFood;
+        this.displayAnalysisResult(selectedFood);
+
+        // UI 전환
+        document.getElementById('single-analysis').classList.remove('hidden');
+        document.getElementById('menu-comparison').classList.add('hidden');
     }
 }
 

@@ -1,0 +1,1028 @@
+/* ===== Fitness Theme Variables ===== */
+:root {
+    /* 강렬하고 에너지 넘치는 색상 팔레트 */
+    --primary-color: #FF6B9D;
+    --primary-dark: #E55584;
+    --secondary-color: #5AC8FA;
+    --accent-color: #FFCC00;
+    --success-color: #34C759;
+    --warning-color: #FF9500;
+
+    /* 배경색 */
+    --bg-white: #FFFFFF;
+    --bg-gray: #F5F5F7;
+    --bg-gray-light: #FAFAFA;
+    --bg-dark: #1C1C1E;
+
+    /* 텍스트 */
+    --text-primary: #000000;
+    --text-secondary: #6E6E73;
+    --text-tertiary: #8E8E93;
+
+    /* 테두리 & 그림자 */
+    --border-color: #E5E5EA;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+    /* Border Radius */
+    --border-radius: 12px;
+    --border-radius-lg: 20px;
+
+    /* Transition */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Reset & Base ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: var(--bg-gray-light);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ===== Header ===== */
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 24px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.mode-switcher {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn.active {
+    background: white;
+    color: var(--primary-color);
+}
+
+.mode-icon {
+    font-size: 20px;
+}
+
+.mode-text {
+    font-size: 12px;
+}
+
+/* ===== Navigation ===== */
+.nav-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: var(--bg-white);
+    padding: 8px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    background: var(--bg-gray);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+/* ===== Cards ===== */
+.card {
+    background: var(--bg-white);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+
+/* ===== Tab Contents ===== */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== Macro Circles ===== */
+.macro-circles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.macro-circle-item {
+    text-align: center;
+}
+
+.macro-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 12px;
+}
+
+.macro-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+}
+
+.macro-circle-item {
+    position: relative;
+}
+
+.macro-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+}
+
+.macro-target {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.macro-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.total-calories {
+    text-align: center;
+    padding: 20px;
+    background: var(--bg-gray);
+    border-radius: var(--border-radius);
+}
+
+.calories-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.calories-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ===== Body Stats ===== */
+.body-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    background: var(--bg-gray);
+    padding: 20px 16px;
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-change {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.stat-change.positive {
+    color: var(--success-color);
+}
+
+.stat-change.negative {
+    color: var(--primary-color);
+}
+
+/* ===== Workout Meals ===== */
+.workout-meals {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.meal-recommendation {
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 2px solid;
+}
+
+.meal-recommendation.pre-workout {
+    border-color: var(--secondary-color);
+    background: linear-gradient(135deg, rgba(90, 200, 250, 0.05), rgba(90, 200, 250, 0.1));
+}
+
+.meal-recommendation.post-workout {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.05), rgba(255, 107, 157, 0.1));
+}
+
+.meal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.meal-icon {
+    font-size: 20px;
+}
+
+.meal-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.suggestion-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.suggestion-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.example-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    background: white;
+    border-radius: 6px;
+}
+
+.suggestion-macros {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+/* ===== Meals List ===== */
+.meals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+/* ===== Analysis ===== */
+.analyze-description {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, rgba(255, 149, 0, 0.1), rgba(255, 149, 0, 0.2));
+    border: 2px solid var(--warning-color);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--warning-color);
+}
+
+.camera-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-camera, .btn-gallery {
+    background: var(--bg-gray);
+    color: var(--text-primary);
+}
+
+.btn-camera:hover, .btn-gallery:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--bg-gray);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.btn-danger {
+    background: var(--primary-color);
+    color: white;
+}
+
+.image-preview {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    border-radius: var(--border-radius);
+    margin-bottom: 16px;
+}
+
+.result-section {
+    margin-top: 24px;
+}
+
+.result-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.food-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.food-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.food-macros {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.macro-badge {
+    padding: 16px 12px;
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.macro-badge.protein {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 107, 157, 0.2));
+    border: 2px solid var(--primary-color);
+}
+
+.macro-badge.carbs {
+    background: linear-gradient(135deg, rgba(90, 200, 250, 0.1), rgba(90, 200, 250, 0.2));
+    border: 2px solid var(--secondary-color);
+}
+
+.macro-badge.fat {
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.1), rgba(255, 204, 0, 0.2));
+    border: 2px solid var(--accent-color);
+}
+
+.badge-label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.badge-value {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.food-calories {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.fitness-evaluation {
+    padding: 20px;
+    background: var(--bg-gray);
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.evaluation-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.evaluation-icon {
+    font-size: 24px;
+}
+
+.evaluation-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.evaluation-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.evaluation-rating {
+    margin-top: 12px;
+}
+
+.rating-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.rating-bar {
+    height: 10px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.rating-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.result-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* ===== Protein Tab ===== */
+.protein-goal {
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 107, 157, 0.2));
+    border-radius: var(--border-radius);
+    margin-bottom: 24px;
+}
+
+.goal-formula {
+    margin-bottom: 8px;
+}
+
+.formula-text {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.formula-result {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.goal-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.protein-progress {
+    margin-bottom: 32px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.progress-bar-large {
+    height: 16px;
+    background: var(--bg-gray);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill-large {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 24px 0 16px;
+}
+
+.food-suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.food-suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-gray);
+    border-radius: var(--border-radius);
+}
+
+.food-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+}
+
+.food-details {
+    flex: 1;
+}
+
+.food-name-small {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.food-protein {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* ===== Carb Cycling ===== */
+.carb-cycling {
+    margin-bottom: 32px;
+}
+
+.cycle-days {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.cycle-day {
+    padding: 20px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 2px solid;
+}
+
+.cycle-day.high {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.05), rgba(52, 199, 89, 0.1));
+}
+
+.cycle-day.medium {
+    border-color: var(--warning-color);
+    background: linear-gradient(135deg, rgba(255, 149, 0, 0.05), rgba(255, 149, 0, 0.1));
+}
+
+.cycle-day.low {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.05), rgba(255, 107, 157, 0.1));
+}
+
+.day-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.day-carbs {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.day-description {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ===== Supplements ===== */
+.supplements-description {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.supplements-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.supplement-card {
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border: 2px solid;
+    position: relative;
+}
+
+.supplement-card.essential {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.05), rgba(255, 107, 157, 0.1));
+}
+
+.supplement-card.recommended {
+    border-color: var(--secondary-color);
+    background: linear-gradient(135deg, rgba(90, 200, 250, 0.05), rgba(90, 200, 250, 0.1));
+}
+
+.supplement-card.optional {
+    border-color: var(--border-color);
+    background: var(--bg-gray);
+}
+
+.supplement-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    background: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.supplement-icon {
+    font-size: 40px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.supplement-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.supplement-timing,
+.supplement-dose,
+.supplement-benefit {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.supplement-benefit {
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+/* ===== Settings ===== */
+.setting-section {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--bg-gray);
+}
+
+.setting-section:last-child {
+    border-bottom: none;
+}
+
+.setting-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.setting-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.setting-description a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.input-field {
+    flex: 1;
+    padding: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.api-key-status {
+    text-align: center;
+    font-size: 13px;
+}
+
+.input-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.data-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* ===== Utility ===== */
+.hidden {
+    display: none !important;
+}
+
+/* ===== Toast ===== */
+.toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--text-primary);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* ===== Loading ===== */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--bg-gray);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading p {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .macro-circles {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .body-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workout-meals {
+        grid-template-columns: 1fr;
+    }
+
+    .food-suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .cycle-days {
+        grid-template-columns: 1fr;
+    }
+
+    .supplements-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-actions {
+        flex-direction: column;
+    }
+
+    .mode-switcher {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 28px;
+    }
+
+    .food-macros {
+        grid-template-columns: 1fr;
+    }
+}
