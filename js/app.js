@@ -10,6 +10,8 @@ class FoodAIApp {
         this.currentImage = null;
         this.currentAnalysis = null;
         this.chart = null;
+        this.macroChart = null;
+        this.dailyChart = null;
 
         this.init();
     }
@@ -49,15 +51,6 @@ class FoodAIApp {
 
         document.getElementById('file-input').addEventListener('change', (e) => {
             this.handleImageSelect(e.target.files[0]);
-        });
-
-        // 이미지 토글
-        document.getElementById('show-original').addEventListener('click', () => {
-            this.showOriginalImage();
-        });
-
-        document.getElementById('show-enhanced').addEventListener('click', () => {
-            this.showEnhancedImage();
         });
 
         // 분석 결과 액션
@@ -165,25 +158,14 @@ class FoodAIApp {
         }
 
         try {
-            this.showLoading('이미지 보정 중...');
+            this.showLoading('이미지 분석 준비 중...');
 
-            // 원본 이미지 저장
-            this.currentImage = {
-                original: file,
-                enhanced: null
-            };
+            // 이미지 저장
+            this.currentImage = file;
 
-            // 원본 이미지 표시
-            const originalUrl = URL.createObjectURL(file);
-            document.getElementById('original-image').src = originalUrl;
-
-            // 이미지 보정
-            const enhancedBlob = await imageEnhancer.autoEnhance(file);
-            this.currentImage.enhanced = enhancedBlob;
-
-            // 보정된 이미지 표시
-            const enhancedUrl = URL.createObjectURL(enhancedBlob);
-            document.getElementById('enhanced-image').src = enhancedUrl;
+            // 이미지 표시
+            const imageUrl = URL.createObjectURL(file);
+            document.getElementById('food-image').src = imageUrl;
 
             // 분석 탭으로 전환
             this.switchTab('analyze');
@@ -204,7 +186,7 @@ class FoodAIApp {
             this.showLoading('AI가 음식을 분석 중입니다...');
 
             // Gemini API로 분석
-            const analysis = await geminiAPI.analyzeFoodImage(this.currentImage.enhanced);
+            const analysis = await geminiAPI.analyzeFoodImage(this.currentImage);
 
             this.currentAnalysis = analysis;
 
@@ -250,24 +232,159 @@ class FoodAIApp {
             </div>
         `).join('');
 
+        // 영양 그래프 표시
+        this.updateNutritionCharts(analysis);
+
         // AI 영양 조언 생성
         this.generateAIAdvice(analysis);
     }
 
-    // 원본 이미지 표시
-    showOriginalImage() {
-        document.getElementById('original-image').style.display = 'block';
-        document.getElementById('enhanced-image').style.display = 'none';
-        document.getElementById('show-original').classList.add('active');
-        document.getElementById('show-enhanced').classList.remove('active');
+    // 영양 그래프 업데이트
+    updateNutritionCharts(analysis) {
+        // 3대 영양소 비율 차트 (도넛)
+        this.updateMacroChart(analysis);
+
+        // 일일 권장량 대비 차트 (막대)
+        this.updateDailyChart(analysis);
     }
 
-    // 보정 이미지 표시
-    showEnhancedImage() {
-        document.getElementById('original-image').style.display = 'none';
-        document.getElementById('enhanced-image').style.display = 'block';
-        document.getElementById('show-original').classList.remove('active');
-        document.getElementById('show-enhanced').classList.add('active');
+    // 3대 영양소 비율 차트
+    updateMacroChart(analysis) {
+        const ctx = document.getElementById('macro-chart');
+        if (!ctx) return;
+
+        // 기존 차트 삭제
+        if (this.macroChart) {
+            this.macroChart.destroy();
+        }
+
+        // 칼로리 계산
+        const carbsCal = analysis.carbs * 4;
+        const proteinCal = analysis.protein * 4;
+        const fatCal = analysis.fat * 9;
+        const total = carbsCal + proteinCal + fatCal;
+
+        // 비율 계산
+        const carbsPercent = total > 0 ? Math.round((carbsCal / total) * 100) : 0;
+        const proteinPercent = total > 0 ? Math.round((proteinCal / total) * 100) : 0;
+        const fatPercent = total > 0 ? Math.round((fatCal / total) * 100) : 0;
+
+        this.macroChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['탄수화물', '단백질', '지방'],
+                datasets: [{
+                    data: [carbsPercent, proteinPercent, fatPercent],
+                    backgroundColor: [
+                        '#FF9500',  // 주황색 - 탄수화물
+                        '#007AFF',  // 파란색 - 단백질
+                        '#FF3B30'   // 빨간색 - 지방
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 일일 권장량 대비 차트
+    updateDailyChart(analysis) {
+        const ctx = document.getElementById('daily-chart');
+        if (!ctx) return;
+
+        // 기존 차트 삭제
+        if (this.dailyChart) {
+            this.dailyChart.destroy();
+        }
+
+        // 일일 권장량 (2000kcal 기준)
+        const daily = {
+            calories: 2000,
+            carbs: 300,
+            protein: 50,
+            fat: 65
+        };
+
+        // 비율 계산
+        const caloriesPercent = Math.min((analysis.calories / daily.calories) * 100, 100);
+        const carbsPercent = Math.min((analysis.carbs / daily.carbs) * 100, 100);
+        const proteinPercent = Math.min((analysis.protein / daily.protein) * 100, 100);
+        const fatPercent = Math.min((analysis.fat / daily.fat) * 100, 100);
+
+        this.dailyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['칼로리', '탄수화물', '단백질', '지방'],
+                datasets: [{
+                    label: '섭취량 (%)',
+                    data: [
+                        Math.round(caloriesPercent),
+                        Math.round(carbsPercent),
+                        Math.round(proteinPercent),
+                        Math.round(fatPercent)
+                    ],
+                    backgroundColor: [
+                        'rgba(0, 122, 255, 0.8)',
+                        'rgba(255, 149, 0, 0.8)',
+                        'rgba(52, 199, 89, 0.8)',
+                        'rgba(255, 59, 48, 0.8)'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '일일 권장량의 ' + context.parsed.x + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // 분석 재시도

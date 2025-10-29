@@ -95,14 +95,8 @@
 
                 <!-- 이미지 미리보기 -->
                 <div class="image-preview-container">
-                    <div class="image-toggle">
-                        <button class="toggle-btn" id="show-original">원본</button>
-                        <button class="toggle-btn active" id="show-enhanced">보정본</button>
-                    </div>
                     <div class="image-preview">
-                        <img id="original-image" class="food-image" alt="원본 이미지" style="display: none;">
-                        <img id="enhanced-image" class="food-image" alt="보정된 이미지">
-                        <canvas id="image-canvas" hidden></canvas>
+                        <img id="food-image" class="food-image" alt="음식 이미지">
                     </div>
                 </div>
 
@@ -113,6 +107,23 @@
                     </div>
 
                     <h3>📊 영양 정보</h3>
+
+                    <!-- 영양 그래프 -->
+                    <div class="nutrition-charts">
+                        <div class="chart-section">
+                            <h4>3대 영양소 비율</h4>
+                            <div class="macro-chart-container">
+                                <canvas id="macro-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <h4>일일 권장량 대비</h4>
+                            <div class="daily-chart-container">
+                                <canvas id="daily-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="nutrition-grid">
                         <div class="nutrition-item">
                             <label>총 칼로리</label>
