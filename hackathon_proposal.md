@@ -47,7 +47,7 @@
 
 #### 활용 데이터 및 AI 모델
 
-**1. Google Gemini Vision API (gemini-1.5-flash-latest)**
+**1. Google Gemini Vision API (gemini-2.5-flash)**
 - **역할**: 음식 이미지 인식, 음식명 추출, 칼로리 및 영양 성분 분석
 - **장점**:
   - 멀티모달 AI로 이미지와 텍스트를 동시에 처리

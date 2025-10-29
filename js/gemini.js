@@ -3,7 +3,8 @@
 export class GeminiAPI {
     constructor() {
         this.apiKey = null;
-        this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+        // Gemini 2.5 Flash - 최신 모델 (2025년)
+        this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     }
 
     // API 키 설정
